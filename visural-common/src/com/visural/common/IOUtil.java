@@ -17,6 +17,7 @@
 package com.visural.common;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -54,32 +55,64 @@ import java.util.zip.ZipOutputStream;
  * @author Richard Nichols
  */
 public class IOUtil {
+    
+    public enum IO {
+        NIO,
+        StreamCopy;
+    }
 
     public static byte[] read(File f) throws IOException {
-        FileChannel in = null;
-        try {
-            in = (new FileInputStream(f)).getChannel();
-            MappedByteBuffer b = in.map(FileChannel.MapMode.READ_ONLY, 0, f.length());
-            byte[] data = new byte[(int)f.length()];
-            b.get(data);
-            return data;
-        } finally {
-            if (in != null) {
-                in.close();
-            }
+        return read(f, IO.NIO);        
+    }
+
+    public static byte[] read(File f, IO io) throws IOException {
+        if (io.equals(IO.StreamCopy)) {
+            return fileToByteArray(f.getCanonicalPath());
+        } else if (io.equals(IO.NIO)) {
+            FileChannel in = null;
+            try {
+                in = (new FileInputStream(f)).getChannel();
+                MappedByteBuffer b = in.map(FileChannel.MapMode.READ_ONLY, 0, f.length());
+                byte[] data = new byte[(int)f.length()];
+                b.get(data);
+                return data;
+            } finally {
+                if (in != null) {
+                    in.close();
+                }
+            }            
+        } else {
+            throw new IllegalArgumentException("Unknown IO: "+io);
         }
     }
     
     public static void write(File f, byte[] data) throws IOException {
-        FileChannel out = null;
-        try {
-            out = (new FileOutputStream(f)).getChannel();
-            out.write(ByteBuffer.wrap(data));
-        } finally {
-            if (out != null) {
-                out.close();
+        write(f, data, IO.NIO);
+    }
+    
+    public static void write(File f, byte[] data, IO io) throws IOException {
+        if (io.equals(IO.StreamCopy)) {
+            OutputStream os = null;
+            try {
+                os = new BufferedOutputStream(new FileOutputStream(f));
+                os.write(data);
+                os.flush();                
+            } finally {
+                silentClose(IOUtil.class, os);
             }
-        }
+        } else if (io.equals(IO.NIO)) {
+            FileChannel out = null;
+            try {
+                out = (new FileOutputStream(f)).getChannel();
+                out.write(ByteBuffer.wrap(data));
+            } finally {
+                if (out != null) {
+                    out.close();
+                }
+            }            
+        } else {
+            throw new IllegalArgumentException("Unknown IO: "+io);
+        }     
     }
 
     public static void copy(File s, File t) throws IOException {
