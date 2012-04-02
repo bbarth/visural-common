@@ -64,16 +64,17 @@ public class ObjectSize {
         return estimate(obj, visited, classFieldMap);
     }
 
-    private static int estimate(Object o, Set visited, Map<Class, Field[]> classFieldMap) {        
+    private static int estimate(Object o, Set<Reference> visited, Map<Class, Field[]> classFieldMap) {
         Class c = o.getClass();
         if (c.isPrimitive()) {
             return primitiveSizes.get(c);
         }
         // see if already visited or special case for string
-        if (visited.contains(o) || internalPooled(o)) {
+        Reference or = new Reference(o);
+        if (visited.contains(or) || internalPooled(o)) {
             return 0;
         }
-        visited.add(o);
+        visited.add(or);
 
         int total = 0;
         if (c.isArray()) {
@@ -87,7 +88,7 @@ public class ObjectSize {
                     Object av = Array.get(o, n);
                     if (av != null) {
                         total += refSize + estimate(av, visited, classFieldMap);
-                    }                    
+                    }
                 }
             }
         } else {
@@ -98,7 +99,9 @@ public class ObjectSize {
                 Field[] fields = classFieldMap.get(c);
                 if (fields == null) {
                     fields = c.getDeclaredFields();
-                    for (Field f : fields) f.setAccessible(true);
+                    for (Field f : fields) {
+                        f.setAccessible(true);
+                    }
                     classFieldMap.put(c, fields);
                 }
                 for (Field f : fields) {
@@ -106,14 +109,14 @@ public class ObjectSize {
                         if (f.getType().isPrimitive()) {
                             total += primitiveSizes.get(f.getType());
                         } else {
-                            try {                                    
+                            try {
                                 Object fv = f.get(o);
                                 if (fv != null) {
                                     total += refSize + estimate(fv, visited, classFieldMap);
                                 }
                             } catch (IllegalAccessException ex) {
-                                throw new IllegalStateException("Unable to read field '"+
-                                        f.getName()+"' on class '"+c.getName()+"'. "
+                                throw new IllegalStateException("Unable to read field '"
+                                        + f.getName() + "' on class '" + c.getName() + "'. "
                                         + "Unable to estimate object sizes.", ex);
                             }
                         }
@@ -131,7 +134,7 @@ public class ObjectSize {
     }
 
     private static boolean internalPooled(Object o) {
-        return (o instanceof String && ((String) o).intern() == o) 
+        return (o instanceof String && ((String) o).intern() == o)
                 || (o instanceof Boolean && Boolean.valueOf(((Boolean) o).booleanValue()) == o)
                 || (o instanceof Byte && Byte.valueOf(((Byte) o).byteValue()) == o)
                 || (o instanceof Character && Character.valueOf(((Character) o).charValue()) == o)
@@ -139,7 +142,40 @@ public class ObjectSize {
                 || (o instanceof Integer && Integer.valueOf(((Integer) o).intValue()) == o)
                 || (o instanceof Long && Long.valueOf(((Long) o).longValue()) == o)
                 || (o instanceof Float && Float.valueOf(((Float) o).floatValue()) == o)
-                || (o instanceof Double && Double.valueOf(((Double) o).doubleValue()) == o)
-                ;            
-    }    
+                || (o instanceof Double && Double.valueOf(((Double) o).doubleValue()) == o);
+    }
+
+    /**
+     * Used to hold a reference to an instance of an object, such that the
+     * the equals method is ignored (i.e. must be same instance).
+     * Used as a wrapper in collections
+     */
+    private static class Reference {
+
+        private final int hash;
+        public final Object obj;
+
+        public Reference(Object o) {
+            this.obj = o;
+            hash = this.obj.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
+            final Reference other = (Reference) obj;
+            return this.obj == other.obj;
+        }
+
+        @Override
+        public int hashCode() {
+            return hash;
+        }        
+        
+    }
 }

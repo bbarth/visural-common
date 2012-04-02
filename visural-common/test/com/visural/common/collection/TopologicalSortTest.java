@@ -37,6 +37,7 @@ public class TopologicalSortTest extends TestCase {
         e.setFollows(b);
         TopologicalSort<Node> ts = new TopologicalSort(a, b, c, d, e, o);
         String order = ts.evaluationOrder().toString();
+        System.out.println(order);
         assertTrue(order.equals("[o, c, a, b, d, e]") || order.equals("[o, a, c, b, d, e]"));
     }    
     
