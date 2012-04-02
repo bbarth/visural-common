@@ -35,10 +35,12 @@ public class TopologicalSortTest extends TestCase {
         a.setPrecedes(b);
         d.setPrecedes(e);
         e.setFollows(b);
+        o.setPrecedes(a);
+        b.setPrecedes(c);
         TopologicalSort<Node> ts = new TopologicalSort(a, b, c, d, e, o);
         String order = ts.evaluationOrder().toString();
         System.out.println(order);
-        assertTrue(order.equals("[o, c, a, b, d, e]") || order.equals("[o, a, c, b, d, e]"));
+        assertTrue(order.equals("[o, a, b, c, d, e]"));
     }    
     
     public void testCycle() {
