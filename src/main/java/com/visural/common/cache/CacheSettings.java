@@ -1,5 +1,7 @@
 package com.visural.common.cache;
 
+import com.visural.common.cache.Cache;
+import com.visural.common.cache.EvictionStrategy;
 import java.io.Serializable;
 
 public class CacheSettings implements Serializable {
