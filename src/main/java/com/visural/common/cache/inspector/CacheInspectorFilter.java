@@ -60,7 +60,8 @@ public class CacheInspectorFilter implements Filter {
     
     static {
         try {
-            htmlTemplate = new StringTemplate(IOUtil.urlToString(CacheInspectorFilter.class.getResource("CacheInspector.html")));
+            htmlTemplate = new StringTemplate(new String(
+                    IOUtil.readStream(CacheInspectorFilter.class.getResourceAsStream("CacheInspector.html"))));
         } catch (IOException ex) {
             Logger.getLogger(CacheInspectorFilter.class.getName()).log(Level.SEVERE, null, ex);
             htmlTemplate = new StringTemplate("Error loading template.");

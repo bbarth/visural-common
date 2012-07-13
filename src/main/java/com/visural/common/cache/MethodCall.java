@@ -16,8 +16,8 @@
  */
 package com.visural.common.cache;
 
+import com.visural.common.GuiceUtil;
 import com.visural.common.StringUtil;
-import com.visural.common.Unproxy;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import org.aopalliance.intercept.MethodInvocation;
@@ -115,7 +115,7 @@ public class MethodCall {
      */
     public static MethodCall getExplicit(Class declaringClass, String methodName, Class[] types, Object[] arguments) {
         try {
-            return new MethodCall(Unproxy.clazz(declaringClass).getMethod(methodName, types), arguments);
+            return new MethodCall(GuiceUtil.unproxyClass(declaringClass).getMethod(methodName, types), arguments);
         } catch (Exception ex) {
             throw new IllegalStateException("MethodCall.get(...) did not resolve method reference ("+
                         declaringClass.getName()+"."+methodName+"["+StringUtil.delimitObjectsToString(",", arguments)+"]"+")", ex);

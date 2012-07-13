@@ -17,7 +17,6 @@
 package com.visural.common.datastruct;
 
 import com.visural.common.BeanUtil;
-import com.visural.common.collection.readonly.ReadOnlyList;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -207,8 +206,12 @@ public class BeanList<T> implements List<T>, Serializable {
         }
     }
 
-    public ReadOnlyList<String> getSortProperties() {
-        return new ReadOnlyList(sortProperties);
+    /**
+     * Returns an unmodifiable list of the current sort properties.
+     * @return 
+     */
+    public List<String> getSortProperties() {
+        return Collections.unmodifiableList(sortProperties);
     }
 
     public Nulls getNullHandling() {

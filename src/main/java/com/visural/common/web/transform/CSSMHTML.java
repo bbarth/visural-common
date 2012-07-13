@@ -137,8 +137,9 @@ public class CSSMHTML {
             return;
         }
         File f = new File(args[0]);
-        String css = IOUtil.fileToString(args[0]);
-        IOUtil.stringToFile(args[1], convert(css, new RelativeFileResolver(f.getParentFile().getCanonicalPath()), args[2]));
+        String css = new String(IOUtil.read(new File(args[0])));
+        String conversion = convert(css, new RelativeFileResolver(f.getParentFile().getCanonicalPath()), args[2]);
+        IOUtil.write(new File(args[1]), conversion.getBytes());
     }
 
     public static class ConversionResult implements Serializable {

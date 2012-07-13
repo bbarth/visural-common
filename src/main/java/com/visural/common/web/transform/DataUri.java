@@ -133,8 +133,9 @@ public class DataUri {
             return;
         }
         File f = new File(args[0]);
-        String css = IOUtil.fileToString(args[0]);
-        IOUtil.stringToFile(args[1], convert(Mode.CSS, css, new RelativeFileResolver(f.getParentFile().getCanonicalPath())));
+        String css = new String(IOUtil.read(new File(args[0])));
+        String conversion = convert(Mode.CSS, css, new RelativeFileResolver(f.getParentFile().getCanonicalPath()));
+        IOUtil.write(new File(args[1]), conversion.getBytes());
     }
 
     public enum Mode {

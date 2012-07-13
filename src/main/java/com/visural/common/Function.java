@@ -57,7 +57,7 @@ public class Function {
 
     /**
      * Allows a list of values to be provided, the first non-null value in
-     * the list is returned as the result.
+     * the list is returned as the result. (Same as the PL/SQL nvl() function)
      * @param <T>
      * @param mainValue
      * @param fallbackValues
@@ -73,8 +73,9 @@ public class Function {
     }
 
     /**
-     * Allows a list of Strings to be provided, the first **non-empty** value in
-     * the list is returned as the result.
+     * Same as {@link #nvl(java.lang.Object, T[])} but a special case for Strings
+     * which will treat empty strings the same as nulls.
+     * 
      * @param <T>
      * @param mainValue
      * @param fallbackValues
@@ -135,6 +136,12 @@ public class Function {
         return result;
     }
 
+    /**
+     * Returns the minimum of the given comparable values.
+     * @param <T>
+     * @param vals
+     * @return 
+     */
     public static <T extends Comparable> T min(T... vals) {
         if (vals == null || vals.length == 0) {
             return null;
@@ -150,7 +157,7 @@ public class Function {
 
     
     /**
-     * Returns the minimum value in the set based on the comparator provided
+     * Returns the maximum value in the set based on the comparator provided
      * @param <T>
      * @param comparator
      * @param first
@@ -170,6 +177,12 @@ public class Function {
         return result;
     }    
     
+    /**
+     * Returns the maximum of the given comparable values.
+     * @param <T>
+     * @param vals
+     * @return 
+     */
     public static <T extends Comparable> T max(T... vals) {
         if (vals == null || vals.length == 0) {
             return null;
@@ -183,6 +196,11 @@ public class Function {
         return result;
     }
 
+    /**
+     * Return the minimum of the primitive ints
+     * @param vals
+     * @return 
+     */
     public static int minInt(int... vals) {
         if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to min()");
         int result = vals[0];
@@ -193,6 +211,12 @@ public class Function {
         }
         return result;
     }
+    
+    /**
+     * Return the maximum of the primitive ints
+     * @param vals
+     * @return 
+     */
     public static int maxInt(int... vals) {
         if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to max()");
         int result = vals[0];
@@ -203,6 +227,12 @@ public class Function {
         }
         return result;
     }
+    
+    /**
+     * Return the minimum of the primitive floats
+     * @param vals
+     * @return 
+     */
     public static float minFloat(float... vals) {
         if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to min()");
         float result = vals[0];
@@ -213,6 +243,12 @@ public class Function {
         }
         return result;
     }
+    
+    /**
+     * Return the maximum of the primitive floats
+     * @param vals
+     * @return 
+     */
     public static float maxFloat(float... vals) {
         if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to max()");
         float result = vals[0];
@@ -223,6 +259,12 @@ public class Function {
         }
         return result;
     }
+    
+    /**
+     * Return the minimum of the primitive longs
+     * @param vals
+     * @return 
+     */
     public static long minLong(long... vals) {
         if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to min()");
         long result = vals[0];
@@ -233,6 +275,12 @@ public class Function {
         }
         return result;
     }
+    
+    /**
+     * Return the maximum of the primitive longs
+     * @param vals
+     * @return 
+     */
     public static long maxLong(long... vals) {
         if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to max()");
         long result = vals[0];
@@ -243,6 +291,12 @@ public class Function {
         }
         return result;
     }
+    
+    /**
+     * Return the minimum of the primitive doubles
+     * @param vals
+     * @return 
+     */
     public static double minDouble(double... vals) {
         if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to min()");
         double result = vals[0];
@@ -253,6 +307,12 @@ public class Function {
         }
         return result;
     }
+    
+    /**
+     * Return the maximum of the primitive doubles
+     * @param vals
+     * @return 
+     */
     public static double maxDouble(double... vals) {
         if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to max()");
         double result = vals[0];

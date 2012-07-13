@@ -20,8 +20,35 @@ import com.google.inject.Injector;
 import com.google.inject.Scope;
 import com.google.inject.spi.BindingScopingVisitor;
 
+/**
+ * Utilities for Guice projects.
+ *
+ * @author Richard Nichols
+ */
 public class GuiceUtil {
 
+    /**
+     * Finds the actual concrete class for a proxied runtime Guice'd class.
+     * @param clazz
+     * @return 
+     */
+    public static Class unproxyClass(Class clazz) {
+        if (clazz == null) {
+            return null;
+        }
+        if (clazz.getName().contains("$$EnhancerByGuice")) {
+            clazz = clazz.getSuperclass();
+        }
+        return clazz;
+    }
+
+    /**
+     * Attempts to return a description of the scope for a given class.
+     *
+     * @param i
+     * @param clazz
+     * @return
+     */
     public static String getScopeDesc(Injector i, Class clazz) {
         final Holder h = new Holder();
         i.getBinding(clazz).acceptScopingVisitor(new BindingScopingVisitor() {
@@ -32,12 +59,12 @@ public class GuiceUtil {
             }
 
             public Object visitScope(Scope scope) {
-                h.desc = ""+scope;
+                h.desc = "" + scope;
                 return null;
             }
 
             public Object visitScopeAnnotation(Class type) {
-                h.desc = ""+type;
+                h.desc = "" + type;
                 return null;
             }
 
@@ -48,8 +75,9 @@ public class GuiceUtil {
         });
         return h.desc;
     }
-    
+
     private static class Holder {
+
         public String desc = "unknown";
     }
 }

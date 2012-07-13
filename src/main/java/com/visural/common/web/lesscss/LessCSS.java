@@ -17,10 +17,7 @@
 package com.visural.common.web.lesscss;
 
 import com.visural.common.IOUtil;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.ScriptableObject;
@@ -35,8 +32,8 @@ public class LessCSS {
 
     public LessCSS() {
         try {
-            lessjs = IOUtil.urlToString(getClass().getClassLoader().getResource("com/visural/common/web/lesscss/less.js"));
-            runjs = IOUtil.urlToString(getClass().getClassLoader().getResource("com/visural/common/web/lesscss/run.js"));
+            lessjs = new String(IOUtil.readStream(getClass().getClassLoader().getResourceAsStream("/com/visural/common/web/lesscss/less.js")));
+            runjs = new String(IOUtil.readStream(getClass().getClassLoader().getResourceAsStream("/com/visural/common/web/lesscss/run.js")));
             cf = new ContextFactory();
             c = cf.enterContext();
             so = c.initStandardObjects();
@@ -75,7 +72,7 @@ public class LessCSS {
             FileInputStream fis = new FileInputStream(args[0]);
             String result = less.less(fis);
             fis.close();
-            IOUtil.stringToFile(args[1], result);
+            IOUtil.write(new File(args[1]), result.getBytes());
         }
     }
 }

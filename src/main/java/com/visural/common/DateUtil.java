@@ -17,7 +17,6 @@
 package com.visural.common;
 
 import com.visural.common.apacherepack.FastDateFormat;
-import java.text.FieldPosition;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -54,6 +53,9 @@ public class DateUtil {
         return d == null ? null : FastDateFormat.getInstance(format, timeZone).format(d);
     }
 
+    /**
+     * Pattern for RFC1123 (http date header)
+     */
     public static final String PATTERN_RFC1123 = "EEE, dd MMM yyyy HH:mm:ss zzz";
 
     /**
@@ -80,8 +82,8 @@ public class DateUtil {
      * @param format
      * @return
      */
-    public static Date parseDate(String dateStr, String format) {
-        return parseDate(dateStr, format, null);
+    public static Date parseDate(String dateStr, String... formats) {
+        return parseDate(dateStr, null, formats);
     }
     
     /**
@@ -90,16 +92,21 @@ public class DateUtil {
      * @param format
      * @return
      */
-    public static Date parseDate(String dateStr, String format, TimeZone tz) {
+    public static Date parseDate(String dateStr, TimeZone tz, String... formats) {
         if (dateStr == null) {
             return null;
         }
-        SimpleDateFormat sdf = new SimpleDateFormat(format);
-        if (tz != null) {
-            sdf.setTimeZone(tz);
+        for (String format : formats) {
+            SimpleDateFormat sdf = new SimpleDateFormat(format);
+            if (tz != null) {
+                sdf.setTimeZone(tz);
+            }
+            Date result = sdf.parse(dateStr, new ParsePosition(0));
+            if (result != null) {
+                return result;
+            }
         }
-        Date result = sdf.parse(dateStr, new ParsePosition(0));
-        return result;
+        return null;
     }
 
     /**

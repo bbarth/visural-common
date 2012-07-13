@@ -18,7 +18,7 @@ package com.visural.common.cache.impl;
 
 import com.google.inject.Inject;
 import com.visural.common.EqualsWeakReference;
-import com.visural.common.Unproxy;
+import com.visural.common.GuiceUtil;
 import com.visural.common.cache.Cache;
 import com.visural.common.cache.Cacheable;
 import com.visural.common.cache.KeyProvider;
@@ -129,7 +129,7 @@ public class CacheInterceptor implements MethodInterceptor {
             for (WeakReference<Cacheable> c : instancesSnapshot) {
                 if (c.get() != null) {
                     Map<String, CacheStatsAggregated> cs = c.get().__cacheData().getStatistics(estimateMemory);
-                    String key = Unproxy.clazz(c.get().getClass()).getName();
+                    String key = GuiceUtil.unproxyClass(c.get().getClass()).getName();
                     if (result.get(key) == null) {
                         result.put(key, cs);
                     } else {

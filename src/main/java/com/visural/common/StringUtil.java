@@ -182,12 +182,12 @@ public class StringUtil {
         if (str == null) {
             return null;
         }
-        StringBuffer buildIndent = new StringBuffer("");
+        StringBuilder buildIndent = new StringBuilder("");
         for (int n = 0; n < indent; n++) {
             buildIndent.append(' ');
         }
         String indentBlock = buildIndent.toString();
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         String[] lines = str.split("\n");
         for (String line : lines) {
             result.append(indentBlock);
@@ -208,7 +208,7 @@ public class StringUtil {
         }
         char content[] = new char[text.length()];
         text.getChars(0, text.length(), content, 0);
-        StringBuffer result = new StringBuffer(content.length + 50);
+        StringBuilder result = new StringBuilder(content.length + 50);
         for (int i = 0; i < content.length; i++) {
             switch (content[i]) {
                 case '<':
@@ -286,7 +286,7 @@ public class StringUtil {
         if (maxPlaces < minPlaces) {
             maxPlaces = minPlaces;
         }
-        StringBuffer format = new StringBuffer("###############0");
+        StringBuilder format = new StringBuilder("###############0");
         if (minPlaces > 0) {
             format.append(".");
             for (int n = 0; n < minPlaces; n++) {
@@ -336,7 +336,7 @@ public class StringUtil {
      */
     public static String wordLineBreak(String str, int charsPerLine) {
         String sa[] = str.split(" ");
-        StringBuffer result = new StringBuffer("");
+        StringBuilder result = new StringBuilder("");
         int count = 0;
         for (int n = 0; n < sa.length; n++) {
             if (count + sa[n].length() > charsPerLine) {
@@ -381,11 +381,11 @@ public class StringUtil {
             return null;
         }
         StringTokenizer st = new StringTokenizer(monoCased.toUpperCase(), " \n\r\t,.", true);
-        StringBuffer sb = new StringBuffer(monoCased.length());
+        StringBuilder sb = new StringBuilder(monoCased.length());
         while (st.hasMoreTokens()) {
             String current = st.nextToken();
             if (current.length() > 1 && current.charAt(0) >= 'A' && current.charAt(0) <= 'Z') {
-                sb.append(current.substring(0, 1) + current.substring(1).toLowerCase());
+                sb.append(current.substring(0, 1)).append(current.substring(1).toLowerCase());
             } else {
                 sb.append(current);
             }
@@ -453,7 +453,7 @@ public class StringUtil {
         if (objects.length == 1 && Collection.class.isAssignableFrom(objects[0].getClass())) {
             objects = (T[])((Collection)objects[0]).toArray();
         }
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         boolean firstDone = false;
         for (int n = 0; n < objects.length; n++) {
             if (firstDone) {
