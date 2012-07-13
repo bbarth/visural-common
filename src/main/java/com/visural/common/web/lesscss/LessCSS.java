@@ -32,8 +32,8 @@ public class LessCSS {
 
     public LessCSS() {
         try {
-            lessjs = new String(IOUtil.readStream(getClass().getClassLoader().getResourceAsStream("/com/visural/common/web/lesscss/less.js")));
-            runjs = new String(IOUtil.readStream(getClass().getClassLoader().getResourceAsStream("/com/visural/common/web/lesscss/run.js")));
+            lessjs = new String(IOUtil.readStream(getClass().getClassLoader().getResourceAsStream("com/visural/common/web/lesscss/less.js")));
+            runjs = new String(IOUtil.readStream(getClass().getClassLoader().getResourceAsStream("com/visural/common/web/lesscss/run.js")));
             cf = new ContextFactory();
             c = cf.enterContext();
             so = c.initStandardObjects();

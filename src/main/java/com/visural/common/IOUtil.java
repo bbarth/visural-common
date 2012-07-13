@@ -358,6 +358,7 @@ public class IOUtil {
      * @throws IOException
      */
     public static byte[] readStream(InputStream is, boolean closeStream) throws IOException {
+        if (is == null) throw new IllegalArgumentException("Input stream can not be null");
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             int r;

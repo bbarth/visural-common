@@ -109,7 +109,7 @@ public class CacheService implements Cacheable {
         return new byte[50*1024*1024];
     }
 
-    @Cache(maxEntries=100)
+    @Cache(maxEntries=10000)
     public byte[] bigMemHard(Integer n) {
         return new byte[50*1024*1024];
     }
