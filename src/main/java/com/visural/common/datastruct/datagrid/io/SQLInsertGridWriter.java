@@ -77,7 +77,7 @@ public class SQLInsertGridWriter implements DataGridWriter {
     }
 
     private static String escapeSQLString(String sCheckStr) {
-        String sResult = Function.strnvl(sCheckStr, "");
+        String sResult = Function.nvl(sCheckStr, "");
 
         sResult = sResult.replace("\'", "\'\'");
         sResult = sResult.replace("\n", "");

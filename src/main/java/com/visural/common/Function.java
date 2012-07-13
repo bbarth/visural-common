@@ -73,24 +73,6 @@ public class Function {
     }
 
     /**
-     * Same as {@link #nvl(java.lang.Object, T[])} but a special case for Strings
-     * which will treat empty strings the same as nulls.
-     * 
-     * @param <T>
-     * @param mainValue
-     * @param fallbackValues
-     * @return
-     */
-    public static String strnvl(String mainValue, String... fallbackValues) {
-        String result = mainValue;
-        int idx = 0;
-        while (StringUtil.isEmptyStr(result) && idx < fallbackValues.length) {
-            result = fallbackValues[idx++];
-        }
-        return result;
-    }
-
-    /**
      * Formats a Throwable into a stack trace message
      * @param e
      * @return

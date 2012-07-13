@@ -99,6 +99,43 @@ public class StringUtil {
         (byte) '8', (byte) '9', (byte) 'a', (byte) 'b',
         (byte) 'c', (byte) 'd', (byte) 'e', (byte) 'f'
     };
+    
+    /**
+     * Takes a number of strings (or an array) and converts empty strings into null references.
+     * 
+     * Can be used in conjunction with {@link Function#nvl(java.lang.Object, T[]) } to 
+     * return the first non-empty result in a set of strings, 
+     * e.g. nvl(emptyToNulls(string1, string2, string3))
+     * 
+     * @param strings
+     * @return 
+     */
+    public static String[] emptyToNulls(String... strings) {
+        String[] result = new String[strings.length];
+        for (int n = 0; n < result.length; n++) {
+            result[n] = strings[n] == null || strings[n].isEmpty() ? null : strings[n];
+        }
+        return result;
+    }
+    
+    /**
+     * Takes a number of strings (or an array) and converts blank strings (those 
+     * that .trim() to isEmpty()) into null references.
+     * 
+     * Can be used in conjunction with {@link Function#nvl(java.lang.Object, T[]) } to 
+     * return the first non-blank result in a set of strings, 
+     * e.g. nvl(blankToNulls(string1, string2, string3))
+     * 
+     * @param strings
+     * @return 
+     */
+    public static String[] blankToNulls(String... strings) {
+        String[] result = new String[strings.length];
+        for (int n = 0; n < result.length; n++) {
+            result[n] = strings[n] == null || strings[n].trim().isEmpty() ? null : strings[n];
+        }
+        return result;
+    }
 
     /**
      * @param str string to inspect
