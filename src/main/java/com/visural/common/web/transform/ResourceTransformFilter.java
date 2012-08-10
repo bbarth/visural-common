@@ -135,63 +135,11 @@ public class ResourceTransformFilter implements Filter {
             if (response == null) {
                 OrigResponseWrapper wrap = new OrigResponseWrapper(res);
                 fc.doFilter(sr, wrap);
-                if (wrap.writer != null ) wrap.writer.flush();
-                wrap.sos.flush();
-                String returnData = new String(wrap.stream.toByteArray());
-                for (Transform transform : transforms) {
-                    switch (transform) {
-                        case HTML_DATAURI:
-                            if (wrap.contentType == null) wrap.contentType = "text/html";
-                            returnData = newDataUri(Mode.HTML,
-                                    returnData,
-                                    new URLBasedResolver(getURLFolder(requestURL)),
-                                    getDataUriMaxResourceSize(req, client))
-                                    .convert();
-                            break;
-
-                        case CSS_DATAURI:
-                            if (wrap.contentType == null) wrap.contentType = "text/css";
-                            returnData = newDataUri(Mode.CSS,
-                                    returnData,
-                                    new URLBasedResolver(getURLFolder(requestURL)),
-                                    getDataUriMaxResourceSize(req, client))
-                                    .convert();
-                            break;
-
-                        case CSS_MHTML_SEPARATE:
-                        case CSS_MHTML_SINGLE:                            
-                            CSSMHTML.ConversionResult result = new CSSMHTML(returnData, new URLBasedResolver(requestURL.substring(0, requestURL.lastIndexOf('/') + 1)), requestURL).convert();
-                            if (transform.equals(Transform.CSS_MHTML_SEPARATE)) {
-                                if (wrap.contentType == null) wrap.contentType = "text/css";
-                                // TODO this doesn't take into account the transforms array in URL
-                                returnData = result.mhtmlRefCSS;
-                                Response sep = new Response(CSSMHTML.getContentType(), wrap.headers, result.mhtml);
-                                transformCache.put(new Request(req.getRequestURI() + CSSMHTML.SEP_MHTML_POSTFIX, Arrays.asList(Transform.CSS_MHTML_SEPARATE)), sep);
-                            } else {
-                                wrap.contentType = CSSMHTML.getContentType();
-                                returnData = result.compositeCSS;
-                            }
-                            break;
-
-                        case CSS_YUI_COMPRESS:                            
-                            if (wrap.contentType == null) wrap.contentType = "text/css";
-                            returnData = yuiCompressCSS(returnData);
-                            break;
-
-                        case JS_YUI_COMPRESS:
-                            if (wrap.contentType == null) wrap.contentType = "text/javascript";
-                            returnData = yuiCompressJS(requestURL, returnData);
-                            break;
-
-                        case LESSCSS:
-                            if (wrap.contentType == null) wrap.contentType = "text/css";
-                            returnData = new LessCSS().less(new ByteArrayInputStream(returnData.getBytes()));
-                            break;
-
-                        default:
-                            throw new UnsupportedOperationException("Not implemented - " + transform.name());
-                    }
+                wrap.flushStreams();
+                if (!wrap.hasOutput()) {
+                    return;
                 }
+                String returnData = transformWrappedOutput(wrap, transforms, requestURL, req, client);
                 if (!transforms.contains(Transform.HTML_DATAURI)) {
                     response = new Response(wrap.contentType, wrap.headers, returnData);
                     transformCache.put(currentRequest, response);
@@ -220,6 +168,67 @@ public class ResourceTransformFilter implements Filter {
         return new DataUri(mode, CSS, returnData, maxResourceSize);
     }
 
+
+    private String transformWrappedOutput(OrigResponseWrapper wrap, List<Transform> transforms, String requestURL, HttpServletRequest req, WebClient client) throws IOException, UnsupportedOperationException {
+        String returnData = new String(wrap.stream.toByteArray());
+        for (Transform transform : transforms) {
+            switch (transform) {
+                case HTML_DATAURI:
+                    if (wrap.contentType == null) wrap.contentType = "text/html";
+                    returnData = newDataUri(Mode.HTML,
+                            returnData,
+                            new URLBasedResolver(getURLFolder(requestURL)),
+                            getDataUriMaxResourceSize(req, client))
+                            .convert();
+                    break;
+
+                case CSS_DATAURI:
+                    if (wrap.contentType == null) wrap.contentType = "text/css";
+                    returnData = newDataUri(Mode.CSS,
+                            returnData,
+                            new URLBasedResolver(getURLFolder(requestURL)),
+                            getDataUriMaxResourceSize(req, client))
+                            .convert();
+                    break;
+
+                case CSS_MHTML_SEPARATE:
+                case CSS_MHTML_SINGLE:                            
+                    CSSMHTML.ConversionResult result = new CSSMHTML(returnData, new URLBasedResolver(requestURL.substring(0, requestURL.lastIndexOf('/') + 1)), requestURL).convert();
+                    if (transform.equals(Transform.CSS_MHTML_SEPARATE)) {
+                        if (wrap.contentType == null) wrap.contentType = "text/css";
+                        // TODO this doesn't take into account the transforms array in URL
+                        returnData = result.mhtmlRefCSS;
+                        Response sep = new Response(CSSMHTML.getContentType(), wrap.headers, result.mhtml);
+                        transformCache.put(new Request(req.getRequestURI() + CSSMHTML.SEP_MHTML_POSTFIX, Arrays.asList(Transform.CSS_MHTML_SEPARATE)), sep);
+                    } else {
+                        wrap.contentType = CSSMHTML.getContentType();
+                        returnData = result.compositeCSS;
+                    }
+                    break;
+
+                case CSS_YUI_COMPRESS:                            
+                    if (wrap.contentType == null) wrap.contentType = "text/css";
+                    returnData = yuiCompressCSS(returnData);
+                    break;
+
+                case JS_YUI_COMPRESS:
+                    if (wrap.contentType == null) wrap.contentType = "text/javascript";
+                    returnData = yuiCompressJS(requestURL, returnData);
+                    break;
+
+                case LESSCSS:
+                    if (wrap.contentType == null) wrap.contentType = "text/css";
+                    returnData = new LessCSS().less(new ByteArrayInputStream(returnData.getBytes()));
+                    break;
+
+                default:
+                    throw new UnsupportedOperationException("Not implemented - " + transform.name());
+            }
+        }
+        return returnData;
+    }
+    
+    
     private class OrigResponseWrapper extends HttpServletResponseWrapper {
 
         protected final HttpServletResponse origResponse;
@@ -232,6 +241,15 @@ public class ResourceTransformFilter implements Filter {
         public OrigResponseWrapper(HttpServletResponse response) {
             super(response);
             origResponse = response;
+        }
+        
+        public void flushStreams() throws IOException {
+            if (writer != null) {
+                writer.flush();
+            }
+            if (sos != null) {
+                sos.flush();
+            }
         }
 
         @Override
@@ -300,6 +318,10 @@ public class ResourceTransformFilter implements Filter {
                 writer = new PrintWriter(sos);
             }
             return writer;
+        }
+
+        private boolean hasOutput() {
+            return stream != null;
         }
     }
 

@@ -53,7 +53,7 @@ public class Function {
             }
         }
         return true;
-    }
+    }    
 
     /**
      * Allows a list of values to be provided, the first non-null value in
@@ -63,11 +63,14 @@ public class Function {
      * @param fallbackValues
      * @return
      */
-    public static <T> T nvl(T mainValue, T... fallbackValues) {
-        T result = mainValue;
-        int idx = 0;
-        while (result == null && idx < fallbackValues.length) {
-            result = fallbackValues[idx++];
+    public static <T> T nvl(T... values) {
+        if (values.length == 0) {
+            return null;
+        }
+        T result = values[0];
+        int idx = 1;
+        while (result == null && idx < values.length) {
+            result = values[idx++];
         }
         return result;
     }
