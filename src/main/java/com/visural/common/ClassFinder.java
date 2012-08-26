@@ -31,19 +31,23 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ClassFinder enables you to find the set of classes that match certain
  * criteria.
  *
  * Based on org.directwebremoting.impl.ClasspathScanner
- * 
+ *
  * @author Jose Noheda [jose.noheda at gmail dot com]
  * @author Joe Walker [joe at getahead dot ltd dot uk]
- * @author Richard Nichols [tibes80 @ gmail dot com]
+ * @author Richard Nichols [tibes80
+ * @ gmail dot com]
  */
 public class ClassFinder {
-    
+
+    private static final Logger log = LoggerFactory.getLogger(ClassFinder.class);
     private final String packageName;
     private final boolean recursive;
     private final Collection<Class> superClassFilter = new ArrayList<Class>();
@@ -62,6 +66,7 @@ public class ClassFinder {
 
     /**
      * Non recursively find classes within the given package
+     *
      * @param packageName package name specified with dot separators
      */
     public ClassFinder(String packageName) {
@@ -70,6 +75,7 @@ public class ClassFinder {
 
     /**
      * Find classes within the given package (optionally recursively)
+     *
      * @param packageName package name specified with dot separator
      * @param recursive True to dig into sub-packages
      */
@@ -98,7 +104,7 @@ public class ClassFinder {
         Set<String> classes = getClasses();
         for (String clazz : classes) {
             Class matched = filterClass(clazz);
-            if(matched != null){
+            if (matched != null) {
                 result.add(matched);
             }
         }
@@ -109,13 +115,12 @@ public class ClassFinder {
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         try {
             Class clazz = classLoader.loadClass(className);
-            if (filterNames(className) 
-                    && filterSuperclass(clazz) 
-                    && filterAnnotations(clazz) 
-                    && filterMethodAnnotations(clazz) 
-                    && filterNotSuperClass(clazz) 
-                    && filterInterface(clazz)) 
-            {
+            if (filterNames(className)
+                    && filterSuperclass(clazz)
+                    && filterAnnotations(clazz)
+                    && filterMethodAnnotations(clazz)
+                    && filterNotSuperClass(clazz)
+                    && filterInterface(clazz)) {
                 return clazz;
             }
         } catch (Throwable t) { //NOPMD
@@ -168,12 +173,12 @@ public class ClassFinder {
     }
 
     private boolean filterNotSuperClass(Class clazz) {
-        if(notSuperClassFilter.isEmpty()){
+        if (notSuperClassFilter.isEmpty()) {
             return true;
         }
         boolean superMatch = false;
-        for(Class superc : notSuperClassFilter){
-            if(!superc.isAssignableFrom(clazz)){
+        for (Class superc : notSuperClassFilter) {
+            if (!superc.isAssignableFrom(clazz)) {
                 superMatch = true;
                 break;
             }
@@ -195,26 +200,25 @@ public class ClassFinder {
         return annotMatch;
     }
 
-    private boolean filterMethodAnnotations(Class clazz){
-        if(methodAnnotationFilter.isEmpty()) {
+    private boolean filterMethodAnnotations(Class clazz) {
+        if (methodAnnotationFilter.isEmpty()) {
             return true;
         }
         boolean annotMatch = false;
-        for (Class annotC : methodAnnotationFilter){
+        for (Class annotC : methodAnnotationFilter) {
             Method[] curMethods = clazz.getMethods();
-            for(Method meth : curMethods){
-                if(meth.getAnnotation(annotC)!=null){
+            for (Method meth : curMethods) {
+                if (meth.getAnnotation(annotC) != null) {
                     annotMatch = true;
                     break;
                 }
             }
-            if(annotMatch){
+            if (annotMatch) {
                 break;
             }
         }
         return annotMatch;
     }
-
 
     /**
      * Get the list of classes available to the classloader
@@ -227,14 +231,14 @@ public class ClassFinder {
             Iterator<URL> resources = null;
             if (!packageName.equals("") || !(classLoader instanceof URLClassLoader)) {
                 // this path is for when a base package name is provided
-                resources = new EnumerationToIterator(classLoader.getResources(packageName+"/"));
+                resources = new EnumerationToIterator(classLoader.getResources(packageName + "/"));
             } else {
                 // attempt to read classpath using URLs and some trickery
                 ArrayList<URL> urls = new ArrayList<URL>();
                 ClassLoader currentLoader = classLoader;
                 while (currentLoader != null) {
                     if (currentLoader instanceof URLClassLoader) {
-                        urls.addAll(Arrays.asList(((URLClassLoader)currentLoader).getURLs()));
+                        urls.addAll(Arrays.asList(((URLClassLoader) currentLoader).getURLs()));
                     } else {
                         // fallback to enum and cross fingers
                         Enumeration<URL> e = currentLoader.getResources("");
@@ -302,7 +306,7 @@ public class ClassFinder {
             File baseDir = new File(path);
             String basepath = baseDir.getCanonicalPath().replace('\\', '/');
             if (StringUtil.isNotEmptyStr(this.packageName) && basepath.endsWith(this.packageName)) {
-                basepath = basepath.substring(0, basepath.length()-this.packageName.length());
+                basepath = basepath.substring(0, basepath.length() - this.packageName.length());
             }
             if (!basepath.endsWith("/")) {
                 basepath += "/";
@@ -314,20 +318,24 @@ public class ClassFinder {
     }
 
     private Set<String> getClassesFromDirectory(File directory, String basepath, Set<String> classes) throws IOException {
-        if (directory.exists()) {
-            for (File current : directory.listFiles()) {
-                if (current.isFile()) {
-                    if (current.getCanonicalPath().endsWith(".class")) {
-                        String className = current.getCanonicalPath()
-                                                    .substring(basepath.length(), current.getCanonicalPath().length()-6)
-                                                    .replace('/', '.')
-                                                    .replaceAll("\\\\", ".");
-                        classes.add(className);
-                    }                                      
-                } else if (recursive) {
-                    classes.addAll(getClassesFromDirectory(current, basepath, classes));
+        try {
+            if (directory.exists()) {
+                for (File current : directory.listFiles()) {
+                    if (current.isFile()) {
+                        if (current.getCanonicalPath().endsWith(".class")) {
+                            String className = current.getCanonicalPath()
+                                    .substring(basepath.length(), current.getCanonicalPath().length() - 6)
+                                    .replace('/', '.')
+                                    .replaceAll("\\\\", ".");
+                            classes.add(className);
+                        }
+                    } else if (recursive) {
+                        classes.addAll(getClassesFromDirectory(current, basepath, classes));
+                    }
                 }
             }
+        } catch (Throwable e) {
+            log.warn("could not scan path: " + directory, e);
         }
         return classes;
     }
@@ -402,11 +410,12 @@ public class ClassFinder {
     public void addNotSuperClassFilter(Class c) {
         notSuperClassFilter.add(c);
     }
+
     public void addClassNameRegexFilter(String s) {
         classNameRegexFilter.add(s);
     }
 
-    public void addMethodAnnotationFilter(Class c){
+    public void addMethodAnnotationFilter(Class c) {
         methodAnnotationFilter.add(c);
     }
 }
