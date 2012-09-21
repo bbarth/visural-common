@@ -27,7 +27,37 @@ import java.util.Comparator;
  * @version $Id: Function.java 25 2010-03-07 00:03:41Z tibes80@gmail.com $
  * @author Richard Nichols
  */
-public class Function {    
+public class Function {
+
+    /**
+     * Returns true if any of the conditions is met
+     * 
+     * @param conditions
+     * @return 
+     */
+    public static boolean any(boolean... conditions) {
+        for (boolean condition : conditions) {
+            if (condition) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if any of the conditions is met
+     * 
+     * @param conditions
+     * @return 
+     */
+    public static boolean all(boolean... conditions) {
+        for (boolean condition : conditions) {
+            if (!condition) {
+                return false;
+            }
+        }
+        return true;
+    }
     
     /**
      * Returns an array with #entries elements, with the given value copied to each element.

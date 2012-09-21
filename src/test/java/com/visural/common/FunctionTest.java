@@ -16,14 +16,33 @@
  */
 package com.visural.common;
 
-import junit.framework.TestCase;
+import static com.visural.common.Function.all;
+import static com.visural.common.Function.any;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import org.junit.Test;
 
 /**
  *
  * @author Visural
  */
-public class FunctionTest extends TestCase {
+public class FunctionTest {
     
+    @Test
+    public void testAll() {
+        assertTrue(all(true, true, true, true));
+        assertFalse(all(true, true, true, false));
+        assertFalse(all(false, true, true, false));
+    }
+    
+    @Test
+    public void testAny() {
+        assertTrue(any(true, true, true, true));
+        assertFalse(any(false, false, false, false));
+        assertTrue(any(false, false, false, true));
+    }
+    
+    @Test
     public void testArrayify() {
         String[] result = Function.arrayify(String.class, "test", 5);
         assertTrue(result.length == 5);
@@ -32,10 +51,12 @@ public class FunctionTest extends TestCase {
         }
     }
     
+    @Test
     public void testMinComparable() {
         assertTrue(Float.valueOf(5).equals(Function.min(Float.valueOf(8), Float.valueOf(5), Float.valueOf(6))));
     }
     
+    @Test
     public void testMaxComparable() {
         assertTrue(Float.valueOf(8).equals(Function.max(Float.valueOf(8), Float.valueOf(5), Float.valueOf(6))));        
     }

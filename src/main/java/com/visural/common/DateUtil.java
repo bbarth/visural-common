@@ -19,7 +19,9 @@ package com.visural.common;
 import com.visural.common.apacherepack.FastDateFormat;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 /**
@@ -53,6 +55,43 @@ public class DateUtil {
         return d == null ? null : FastDateFormat.getInstance(format, timeZone).format(d);
     }
 
+    /**
+     * Returns a date in the format used by the XML standard (ISO format)
+     * 
+     * @param date
+     * @return 
+     */
+    public static String getXmlIsoDateString(Date date) {
+        if (date == null) {
+            return null;
+        }
+        Calendar calendar = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        calendar.setTime(date);
+        StringBuilder buffer = new StringBuilder();
+        buffer.append(calendar.get(Calendar.YEAR));
+        buffer.append("-");
+        buffer.append(twoDigit(calendar.get(Calendar.MONTH) + 1));
+        buffer.append("-");
+        buffer.append(twoDigit(calendar.get(Calendar.DAY_OF_MONTH)));
+        buffer.append("T");
+        buffer.append(twoDigit(calendar.get(Calendar.HOUR_OF_DAY)));
+        buffer.append(":");
+        buffer.append(twoDigit(calendar.get(Calendar.MINUTE)));
+        buffer.append(":");
+        buffer.append(twoDigit(calendar.get(Calendar.SECOND)));
+        buffer.append(".");
+        buffer.append(twoDigit(calendar.get(Calendar.MILLISECOND) / 10));
+        buffer.append("Z");
+        return buffer.toString();
+    }
+
+    private static String twoDigit(int i) {
+        if (i >= 0 && i < 10) {
+            return "0" + String.valueOf(i);
+        }
+        return String.valueOf(i);
+    }
+    
     /**
      * Pattern for RFC1123 (http date header)
      */
