@@ -128,7 +128,7 @@ public class WebClient implements Serializable {
     }
 
     private static Platform detectedPlatform(String userAgent) {
-        if (StringUtil.isBlankStr(userAgent)) {
+        if (StringUtil.isBlank(userAgent)) {
             return Platform.UNKNOWN;
         } else if(userAgent.contains("Android")) {
             return Platform.ANDROID;
@@ -159,7 +159,7 @@ public class WebClient implements Serializable {
         int version = 0;
         String ver = null;
 
-        if (StringUtil.isNotBlankStr(userAgentString)) {
+        if (StringUtil.isNotBlank(userAgentString)) {
             try {
                 if (userAgentString.contains("Yahoo! Slurp")) {
                     ua = UserAgent.YAHOO_SLURP;

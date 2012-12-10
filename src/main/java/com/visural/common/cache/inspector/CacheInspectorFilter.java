@@ -79,7 +79,7 @@ public class CacheInspectorFilter implements Filter {
     }
     
     public void init(FilterConfig fc) throws ServletException {
-        if (StringUtil.isNotBlankStr(fc.getInitParameter(FILTER_PATH_PARAM))) {
+        if (StringUtil.isNotBlank(fc.getInitParameter(FILTER_PATH_PARAM))) {
             filterPath = fc.getInitParameter(FILTER_PATH_PARAM);
         }
     }

@@ -305,7 +305,7 @@ public class ClassFinder {
             Set<String> classes = new HashSet<String>();
             File baseDir = new File(path);
             String basepath = baseDir.getCanonicalPath().replace('\\', '/');
-            if (StringUtil.isNotEmptyStr(this.packageName) && basepath.endsWith(this.packageName)) {
+            if (StringUtil.isNotEmpty(this.packageName) && basepath.endsWith(this.packageName)) {
                 basepath = basepath.substring(0, basepath.length() - this.packageName.length());
             }
             if (!basepath.endsWith("/")) {

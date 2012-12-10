@@ -19,7 +19,6 @@ package com.visural.common.web.transform;
 
 import com.visural.common.IOUtil;
 import com.visural.common.coder.Base64Encoder;
-import com.visural.common.web.api.googlecharts.Chart;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -38,7 +37,8 @@ import java.util.regex.Pattern;
 public class DataUri {
 
     public static final int DEFAULT_MAX_SIZE = 1024*50;
-    public static final String[] BLOCKED_DOMAINS = {"http://in.getclicky.com/", Chart.apiURL};
+    // TODO: this should be a parameter
+    public static final String[] BLOCKED_DOMAINS = {"http://in.getclicky.com/"};
     
     private static final Pattern findCSS = Pattern.compile("url\\(\\s*[\"']?(([^\\)]+)\\.((png)|(gif)|(jpg)))[\"']?\\s*\\)", Pattern.CASE_INSENSITIVE);
     private static final Pattern findHTML = Pattern.compile("src=\\s*[\"'](([^'\"]+)\\.((png)|(gif)|(jpg)))[\"']", Pattern.CASE_INSENSITIVE);

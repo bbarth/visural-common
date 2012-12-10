@@ -24,9 +24,9 @@ import java.util.regex.Pattern;
  */
 public class NoFollowLinks {
 
-    public static String REGEX = "<a\\s[^>]*href\\s*=";
-    public static String REPLACE = "<a rel=\"nofollow\" href=";
-    private static Pattern rep = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
+    public static final String REGEX = "<a\\s[^>]*href\\s*=";
+    public static final String REPLACE = "<a rel=\"nofollow\" href=";
+    private static final Pattern rep = Pattern.compile(REGEX, Pattern.CASE_INSENSITIVE);
 
     public static String replace(String html) {
         return rep.matcher(html).replaceAll(REPLACE);

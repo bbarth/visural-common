@@ -16,6 +16,7 @@
  */
 package com.visural.common;
 
+import static com.visural.common.Function.minInt;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -31,9 +32,14 @@ import java.util.StringTokenizer;
  * @author Richard Nichols
  */
 public class StringUtil {
-    
-    public static final char[] FILENAME_INVALID_CHARS = new char[] {'/', '\\', '?', '%', '*', ':', '|', '"', '<', '>'};
 
+    private static StringConverter ToStringConverter = new StringConverter() {
+        public String toString(Object object) {
+            return (object == null ? "null" : object.toString());
+        }
+    };
+
+    public static final char[] FILENAME_INVALID_CHARS = new char[]{'/', '\\', '?', '%', '*', ':', '|', '"', '<', '>'};
     /**
      * Returns true if the filename does not contain any invalid characters.
      * Based on http://en.wikipedia.org/wiki/Filename
@@ -64,10 +70,16 @@ public class StringUtil {
         return false;
     }
 
-    public static String getStackTrace(Throwable t) {
+    /**
+     * Get a stack trace as a string from a Throwable.
+     * 
+     * @param throwable
+     * @return 
+     */
+    public static String getStackTrace(Throwable throwable) {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
-        t.printStackTrace(pw);
+        throwable.printStackTrace(pw);
         pw.flush(); sw.flush();
         pw.close();
         return sw.toString();
@@ -93,7 +105,7 @@ public class StringUtil {
                     "setting for String - this should never occur.");
         }
     }
-    static final byte[] HEX_CHAR_TABLE = {
+    private static final byte[] HEX_CHAR_TABLE = {
         (byte) '0', (byte) '1', (byte) '2', (byte) '3',
         (byte) '4', (byte) '5', (byte) '6', (byte) '7',
         (byte) '8', (byte) '9', (byte) 'a', (byte) 'b',
@@ -110,7 +122,7 @@ public class StringUtil {
      * @param strings
      * @return 
      */
-    public static String[] emptyToNulls(String... strings) {
+    public static String[] emptyToNull(String... strings) {
         String[] result = new String[strings.length];
         for (int n = 0; n < result.length; n++) {
             result[n] = strings[n] == null || strings[n].isEmpty() ? null : strings[n];
@@ -129,7 +141,7 @@ public class StringUtil {
      * @param strings
      * @return 
      */
-    public static String[] blankToNulls(String... strings) {
+    public static String[] blankToNull(String... strings) {
         String[] result = new String[strings.length];
         for (int n = 0; n < result.length; n++) {
             result[n] = strings[n] == null || strings[n].trim().isEmpty() ? null : strings[n];
@@ -141,7 +153,7 @@ public class StringUtil {
      * @param str string to inspect
      * @return true if string is null or empty
      */
-    public static boolean isEmptyStr(String str) {
+    public static boolean isEmpty(CharSequence str) {
         return (str == null || str.length() == 0);
     }
 
@@ -149,15 +161,24 @@ public class StringUtil {
      * @param str string to inspect
      * @return true if string is null or empty or blank (i.e. whitespace only)
      */
-    public static boolean isBlankStr(String str) {
-        return (str == null || str.trim().length() == 0);
+    public static boolean isBlank(CharSequence cs) {
+        int strLen;
+        if (cs == null || (strLen = cs.length()) == 0) {
+            return true;
+        }
+        for (int i = 0; i < strLen; i++) {
+            if (Character.isWhitespace(cs.charAt(i)) == false) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
      * @param str string to inspect
      * @return true if string is not null or empty
      */
-    public static boolean isNotEmptyStr(String str) {
+    public static boolean isNotEmpty(String str) {
         return !(str == null || str.length() == 0);
     }
 
@@ -165,7 +186,7 @@ public class StringUtil {
      * @param str string to inspect
      * @return true if string is not null or empty or blank (i.e. whitespace only)
      */
-    public static boolean isNotBlankStr(String str) {
+    public static boolean isNotBlank(String str) {
         return !(str == null || str.trim().length() == 0);
     }
 
@@ -181,42 +202,44 @@ public class StringUtil {
 
     /**
      * Common conversion for text representation of booleans.
-     * @param str string to parse
-     * @param whenBlank the value to return when the string is blank
+     * @param string string to parse
+     * @param whenBlankOrNull the value to return when the string is blank
      * @return true if string matches to Y, YES, TRUE, ON, 1 - case insensitive
      */
-    public static boolean parseBoolean(String str, boolean whenBlank) {
-        return (isBlankStr(str) ? whenBlank : (str.toUpperCase().equals("Y") ||
-                str.toUpperCase().equals("YES") ||
-                str.toUpperCase().equals("TRUE") ||
-                str.toUpperCase().equals("ON") ||
-                str.toUpperCase().equals("1")));
+    public static boolean parseBoolean(String string, boolean whenBlankOrNull) {
+        return isBlank(string)
+                ? whenBlankOrNull
+                : string.toUpperCase().equals("Y")
+                || string.toUpperCase().equals("YES")
+                || string.toUpperCase().equals("TRUE")
+                || string.toUpperCase().equals("ON")
+                || string.toUpperCase().equals("1");
     }
 
     /**
      * Trims the given string to the length given.
-     * @param str
-     * @param len
+     * @param string
+     * @param maxLength
      * @return
      */
-    public static String trimToLength(String str, int len) {
-        if (str == null) {
+    public static String truncate(String string, int maxLength) {
+        if (string == null) {
             return null;
-        } else if (str.length() > len) {
-            return (len >= 0 ? str.substring(0, len) : "");
+        } else if (string.length() > maxLength) {
+            return (maxLength >= 0 ? string.substring(0, maxLength) : "");
         } else {
-            return str;
+            return string;
         }
     }
 
     /**
      * Adds whitespace to the left hand side of a block of line broken text.
-     * @param str the block of text
+     * @param string the block of text
      * @param indent number of characters to indent by
      * @return indented text
      */
-    public static String blockIndent(String str, int indent) {
-        if (str == null) {
+    public static String blockIndent(String string, int indent) {
+        if (string == null) {
             return null;
         }
         StringBuilder buildIndent = new StringBuilder("");
@@ -225,7 +248,7 @@ public class StringUtil {
         }
         String indentBlock = buildIndent.toString();
         StringBuilder result = new StringBuilder();
-        String[] lines = str.split("\n");
+        String[] lines = string.split("\n");
         for (String line : lines) {
             result.append(indentBlock);
             result.append(line);
@@ -336,6 +359,52 @@ public class StringUtil {
         NumberFormat nf = new DecimalFormat(format.toString());
         return nf.format(dFinal);
     }
+    
+    /**
+     * Left-pads the string with the padding character up to the minimum length.
+     * 
+     * @param string
+     * @param minLength
+     * @param padChar
+     * @return 
+     */
+    public static String lpad(String string, int minLength, char padChar) {
+        if (string == null) {
+            return null;
+        } else if (string.length() >= minLength) {
+            return string;
+        } else {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < minLength-string.length(); i++) {
+                sb.append(padChar);
+            }
+            return sb.append(string).toString();
+        }
+    }
+    
+    /**
+     * Right-pads the string with the padding character up to the minimum length.
+     * 
+     * @param string
+     * @param minLength
+     * @param padChar
+     * @return 
+     */
+    public static String rpad(String string, int minLength, char padChar) {
+        if (string == null) {
+            return null;
+        } else if (string.length() >= minLength) {
+            return string;
+        } else {
+            StringBuilder sb = new StringBuilder(string);
+            for (int i = 0; i < minLength-string.length(); i++) {
+                sb.append(padChar);
+            }
+            return sb.toString();
+        }
+    }
+    
+    
 
     /**
      * Reverses the characters in the given string.
@@ -458,10 +527,10 @@ public class StringUtil {
                 if (s1.charAt(i - 1) == s2.charAt(j - 1)) {
                     cost = 0;
                 }
-                d[i][j] = Function.minInt(d[i - 1][j] + 1, // insertion
-                        d[i][j - 1] + 1, // deletion
-                        d[i - 1][j - 1] + cost // substitution
-                        );
+                d[i][j] = minInt(d[i - 1][j] + 1, // insertion
+                                d[i][j - 1] + 1, // deletion
+                                d[i - 1][j - 1] + cost // substitution
+                                );
             }
         }
         return d[s1.length()][s2.length()];
@@ -476,11 +545,7 @@ public class StringUtil {
     }
 
     public static <T> String delimitObjectsToString(String delim, String lastDelim, boolean skipNulls, T... objects) {
-        return delimitObjectsToString(delim, lastDelim, skipNulls, new StringConverter<T>() {
-            public String toString(T object) {
-                return (object == null ? "null" : object.toString());
-            }
-        }, objects);
+        return delimitObjectsToString(delim, lastDelim, skipNulls, ToStringConverter, objects);
     }
 
     public static <T> String delimitObjectsToString(String delim, String lastDelim, boolean skipNulls, StringConverter<T> conv, T... objects) {

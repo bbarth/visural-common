@@ -37,21 +37,21 @@ public class DateUtil {
      * @param date
      * @return
      */
-    public static Date dateCopy(Date date) {
+    public static Date copy(Date date) {
         return (date == null ? null : new Date(date.getTime()));
     }
 
     /**
      * Formats a date according to the SimpleDateFormat format string provided
-     * @param d the date to display
+     * @param date the date to display
      * @param sFormat the format string according to the SimpleDateFormat class specs
      * @return the resulting formatted string
      */
-    public static String formatDate(Date d, String format) {
-        return d == null ? null : FastDateFormat.getInstance(format).format(d);
+    public static String format(Date date, String format) {
+        return date == null ? null : FastDateFormat.getInstance(format).format(date);
     }
 
-    public static String formatDate(Date d, String format, TimeZone timeZone) {
+    public static String format(Date d, String format, TimeZone timeZone) {
         return d == null ? null : FastDateFormat.getInstance(format, timeZone).format(d);
     }
 
@@ -61,7 +61,7 @@ public class DateUtil {
      * @param date
      * @return 
      */
-    public static String getXmlIsoDateString(Date date) {
+    public static String formatXmlIsoDate(Date date) {
         if (date == null) {
             return null;
         }
@@ -99,20 +99,20 @@ public class DateUtil {
 
     /**
      * Return a date formatted to RFC1123 suitable for Http header
-     * @param d
+     * @param date
      * @return
      */
-    public static String formatHttpDate(Date d) {
-        return formatDate(d, PATTERN_RFC1123);
+    public static String formatHttpDate(Date date) {
+        return format(date, PATTERN_RFC1123);
     }
 
     /**
      * Return a date formatted to RFC1123 suitable for Http header
-     * @param d
+     * @param millis
      * @return
      */
-    public static String formatHttpDate(long d) {
-        return formatHttpDate(new Date(d));
+    public static String formatHttpDate(long millis) {
+        return formatHttpDate(new Date(millis));
     }
 
     /**
@@ -131,14 +131,14 @@ public class DateUtil {
      * @param format
      * @return
      */
-    public static Date parseDate(String dateStr, TimeZone tz, String... formats) {
+    public static Date parseDate(String dateStr, TimeZone timeZone, String... formats) {
         if (dateStr == null) {
             return null;
         }
         for (String format : formats) {
             SimpleDateFormat sdf = new SimpleDateFormat(format);
-            if (tz != null) {
-                sdf.setTimeZone(tz);
+            if (timeZone != null) {
+                sdf.setTimeZone(timeZone);
             }
             Date result = sdf.parse(dateStr, new ParsePosition(0));
             if (result != null) {

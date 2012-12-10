@@ -30,6 +30,67 @@ import java.util.Comparator;
 public class Function {
 
     /**
+     * Clamps the value to within the range min..max
+     * 
+     * @param value
+     * @param min
+     * @param max
+     * @return 
+     */
+    public static int clamp(int value, int min, int max) {
+        return value < min 
+                ? min 
+                : value > max 
+                    ? max 
+                    : value;
+    }
+    /**
+     * Clamps the value to within the range min..max
+     * 
+     * @param value
+     * @param min
+     * @param max
+     * @return 
+     */
+    public static long clamp(long value, long min, long max) {
+        return value < min 
+                ? min 
+                : value > max 
+                    ? max 
+                    : value;
+    }
+    /**
+     * Clamps the value to within the range min..max
+     * 
+     * @param value
+     * @param min
+     * @param max
+     * @return 
+     */
+    public static double clamp(double value, double min, double max) {
+        return value < min 
+                ? min 
+                : value > max 
+                    ? max 
+                    : value;
+    }
+    /**
+     * Clamps the value to within the range min..max
+     * 
+     * @param value
+     * @param min
+     * @param max
+     * @return 
+     */
+    public static float clamp(float value, float min, float max) {
+        return value < min 
+                ? min 
+                : value > max 
+                    ? max 
+                    : value;
+    }
+
+    /**
      * Returns true if any of the conditions is met
      * 
      * @param conditions
@@ -105,21 +166,6 @@ public class Function {
         return result;
     }
 
-    /**
-     * Formats a Throwable into a stack trace message
-     * @param e
-     * @return
-     */
-    public static String formatStackTrace(Throwable e) {
-        StackTraceElement[] ste = e.getStackTrace();
-
-        String sStackTrace = "Exception (" + e.getClass().getCanonicalName() + "): '" + e.getMessage() + "' @\n";
-        for (int nLp = 0; nLp < ste.length; nLp++) {
-            sStackTrace += ste[nLp].toString() + "\n";
-        }
-
-        return sStackTrace;
-    }
 
     /**
      * @param clazz
@@ -217,7 +263,9 @@ public class Function {
      * @return 
      */
     public static int minInt(int... vals) {
-        if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to min()");
+        if (vals.length == 0) {
+            throw new IllegalArgumentException("No parameters provided to min()");
+        }
         int result = vals[0];
         for (int next : vals) {
             if (next < result) {
@@ -233,7 +281,9 @@ public class Function {
      * @return 
      */
     public static int maxInt(int... vals) {
-        if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to max()");
+        if (vals.length == 0) {
+            throw new IllegalArgumentException("No parameters provided to max()");
+        }
         int result = vals[0];
         for (int next : vals) {
             if (next > result) {
@@ -249,7 +299,9 @@ public class Function {
      * @return 
      */
     public static float minFloat(float... vals) {
-        if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to min()");
+        if (vals.length == 0) {
+            throw new IllegalArgumentException("No parameters provided to min()");
+        }
         float result = vals[0];
         for (float next : vals) {
             if (next < result) {
@@ -265,7 +317,9 @@ public class Function {
      * @return 
      */
     public static float maxFloat(float... vals) {
-        if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to max()");
+        if (vals.length == 0) {
+            throw new IllegalArgumentException("No parameters provided to max()");
+        }
         float result = vals[0];
         for (float next : vals) {
             if (next > result) {
@@ -281,7 +335,9 @@ public class Function {
      * @return 
      */
     public static long minLong(long... vals) {
-        if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to min()");
+        if (vals.length == 0) {
+            throw new IllegalArgumentException("No parameters provided to min()");
+        }
         long result = vals[0];
         for (long next : vals) {
             if (next < result) {
@@ -297,7 +353,9 @@ public class Function {
      * @return 
      */
     public static long maxLong(long... vals) {
-        if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to max()");
+        if (vals.length == 0) {
+            throw new IllegalArgumentException("No parameters provided to max()");
+        }
         long result = vals[0];
         for (long next : vals) {
             if (next > result) {
@@ -313,7 +371,9 @@ public class Function {
      * @return 
      */
     public static double minDouble(double... vals) {
-        if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to min()");
+        if (vals.length == 0) {
+            throw new IllegalArgumentException("No parameters provided to min()");
+        }
         double result = vals[0];
         for (double next : vals) {
             if (next < result) {
@@ -329,7 +389,9 @@ public class Function {
      * @return 
      */
     public static double maxDouble(double... vals) {
-        if (vals.length == 0) throw new IllegalArgumentException("No parameters provided to max()");
+        if (vals.length == 0) {
+            throw new IllegalArgumentException("No parameters provided to max()");
+        }
         double result = vals[0];
         for (double next : vals) {
             if (next > result) {

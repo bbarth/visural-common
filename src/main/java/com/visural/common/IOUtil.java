@@ -26,10 +26,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * IO related utilities.
@@ -38,6 +39,8 @@ import java.util.zip.ZipOutputStream;
  * @author Richard Nichols
  */
 public class IOUtil {
+    
+    private static final Logger log = LoggerFactory.getLogger(IOUtil.class);   
 
     /**
      *
@@ -252,9 +255,7 @@ public class IOUtil {
             T result = (T) ois.readObject();
             return result;
         } catch (Exception ex) {
-            String error = "An error occurred while reading a '" + clazz.getCanonicalName() + "' object.";
-            Logger.getLogger(IOUtil.class.getName()).log(Level.SEVERE, error, ex);
-            throw new IllegalStateException(error, ex);
+            throw new IllegalStateException("An error occurred while reading a '" + clazz.getCanonicalName() + "' object.", ex);
         } finally {
             IOUtil.silentClose(IOUtil.class, ois);
             IOUtil.silentClose(IOUtil.class, is);
@@ -275,23 +276,20 @@ public class IOUtil {
             oos.writeObject(obj);
             oos.close();
         } catch (IOException ex) {
-            String error = "An error occurred while writing a '" + obj.getClass().getCanonicalName() + "' object.";
-            Logger.getLogger(IOUtil.class.getName()).log(Level.SEVERE, error, ex);
-            throw new IllegalStateException(error, ex);
+            throw new IllegalStateException("An error occurred while writing a '" + obj.getClass().getCanonicalName() + "' object.", ex);
         } finally {
             IOUtil.silentClose(IOUtil.class, oos);
             IOUtil.silentClose(IOUtil.class, os);
         }
     }
 
-    // TODO: review whether to remove Java logging and switch to SLF4J
     public static void silentClose(Class myClass, InputStream is) {
         try {
             if (is != null) {
                 is.close();
             }
         } catch (IOException se) {
-            Logger.getLogger(myClass.getName()).log(Level.SEVERE, "Could not close InputStream in silentClose(...)", se);
+            log.error("Could not close InputStream in silentClose(...)", se);
         }
     }
 
@@ -301,7 +299,7 @@ public class IOUtil {
                 os.close();
             }
         } catch (IOException se) {
-            Logger.getLogger(myClass.getName()).log(Level.SEVERE, "Could not close OutputStream in silentClose(...)", se);
+            log.error("Could not close OutputStream in silentClose(...)", se);
         }
     }
 
@@ -311,7 +309,7 @@ public class IOUtil {
                 ps.close();
             }
         } catch (SQLException se) {
-            Logger.getLogger(myClass.getName()).log(Level.SEVERE, "Could not close PreparedStatement in silentClose(...)", se);
+            log.error("Could not close PreparedStatement in silentClose(...)", se);
         }
     }
 
@@ -321,7 +319,7 @@ public class IOUtil {
                 con.close();
             }
         } catch (SQLException se) {
-            Logger.getLogger(myClass.getName()).log(Level.SEVERE, "Could not close Connection in silentClose(...)", se);
+            log.error("Could not close Connection in silentClose(...)", se);
         }
     }
 
@@ -331,7 +329,7 @@ public class IOUtil {
                 rs.close();
             }
         } catch (SQLException se) {
-            Logger.getLogger(myClass.getName()).log(Level.SEVERE, "Could not close ResultSet in silentClose(...)", se);
+            log.error("Could not close ResultSet in silentClose(...)", se);
         }
     }
 
@@ -358,7 +356,9 @@ public class IOUtil {
      * @throws IOException
      */
     public static byte[] readStream(InputStream is, boolean closeStream) throws IOException {
-        if (is == null) throw new IllegalArgumentException("Input stream can not be null");
+        if (is == null) {
+            throw new IllegalArgumentException("Input stream can not be null");
+        }
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             int r;
@@ -368,11 +368,7 @@ public class IOUtil {
             return baos.toByteArray();
         } finally {
             if (closeStream) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    Logger.getLogger(IOUtil.class.getName()).log(Level.SEVERE, "Could not close stream in readStream()", e);
-                }
+                silentClose(IOUtil.class, is);
             }
         }
     }
@@ -386,19 +382,18 @@ public class IOUtil {
      * @throws IOException
      * @throws FileNotFoundException
      */
-    public static void zipFolder(File destinationZipFile, String folderToZip, boolean recurseSubFolders) throws IOException, FileNotFoundException {
+    public static void zipFolder(File destinationZipFile, File folderToZip, boolean recurseSubFolders) throws IOException, FileNotFoundException {
         // check input
         if (destinationZipFile.exists() && !destinationZipFile.delete()) {
             throw new IOException("ZIP file " + destinationZipFile + " already exists and can not be overwritten.");
         }
-        File fFolder = new File(folderToZip);
-        if (!fFolder.exists() || !fFolder.isDirectory()) {
+        if (!folderToZip.exists() || !folderToZip.isDirectory()) {
             throw new FileNotFoundException("Base folder does not exist.");
         }
 
         // gather file list
-        ArrayList<ZipItem> alZI = new ArrayList<ZipItem>();
-        zipFolderWorker(alZI, fFolder, fFolder.getPath(), recurseSubFolders);
+        List<ZipItem> alZI = new ArrayList<ZipItem>();
+        zipFolderWorker(alZI, folderToZip, folderToZip.getPath(), recurseSubFolders);
 
         // create zip
         ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(destinationZipFile));
@@ -413,7 +408,7 @@ public class IOUtil {
         zos.close();
     }
 
-    private static void zipFolderWorker(ArrayList<ZipItem> zipItems, File currentFolder, String baseFolder, boolean recurse) {
+    private static void zipFolderWorker(List<ZipItem> zipItems, File currentFolder, String baseFolder, boolean recurse) {
         for (File file : currentFolder.listFiles()) {
             if (file.isDirectory()) {
                 if (recurse) {
@@ -442,7 +437,9 @@ public class IOUtil {
 
     /**
      * Recursively deletes all files and folder under the path specified and
-     * then removes the folder itself (use with care!)
+     * then removes the folder itself (use with care!).
+     * 
+     * Does not account for symbolic links etc. on unix-like platforms.
      *
      * @param folder
      * @throws IOException

@@ -87,7 +87,9 @@ public class TopologicalSort<T> {
      * @return 
      */
     public List<T> evaluationOrder() {        
-        if (evalCache != null) return evalCache;        
+        if (evalCache != null) {
+            return evalCache;
+        }        
         List<T> eval = new ArrayList<T>(orphaned);
         
         if (noFollows.isEmpty() && !precedes.isEmpty()) {

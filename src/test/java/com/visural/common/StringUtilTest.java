@@ -1,5 +1,7 @@
 package com.visural.common;
 
+import static com.visural.common.StringUtil.lpad;
+import static com.visural.common.StringUtil.rpad;
 import java.util.Arrays;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -10,8 +12,20 @@ import static org.junit.Assert.*;
  */
 public class StringUtilTest {
 
-    public StringUtilTest() {
+    @Test
+    public void testLpad() {
+        assertEquals(null, lpad(null, 1, '0'));
+        assertEquals("000123", lpad("123", 6, '0'));
+        assertEquals("1000123", lpad("1000123", 6, '0'));
     }
+    
+    @Test
+    public void testRpad() {
+        assertEquals(null, rpad(null, 1, '0'));
+        assertEquals("123000", rpad("123", 6, '0'));
+        assertEquals("1000123", rpad("1000123", 6, '0'));
+    }
+    
 //
 //
 //    @Test
@@ -60,7 +74,7 @@ public class StringUtilTest {
         System.out.println("emptyToNulls");
         String[] strings = new String[]{"a", "b", null, "", "", "c", "  "};
         String[] expResult = new String[]{"a", "b", null, null, null, "c", "  "};
-        String[] result = StringUtil.emptyToNulls(strings);
+        String[] result = StringUtil.emptyToNull(strings);
         assertTrue(Arrays.equals(result, expResult));
     }
 
@@ -69,16 +83,16 @@ public class StringUtilTest {
         System.out.println("emptyToNulls");
         String[] strings = new String[]{"a", "b", null, "", "", "c", "  "};
         String[] expResult = new String[]{"a", "b", null, null, null, "c", null};
-        String[] result = StringUtil.blankToNulls(strings);
+        String[] result = StringUtil.blankToNull(strings);
         assertTrue(Arrays.equals(result, expResult));
     }
 
     @Test
-    public void testIsEmptyStr() {
-        assertTrue(StringUtil.isEmptyStr(""));
-        assertTrue(StringUtil.isEmptyStr(null));
-        assertFalse(StringUtil.isEmptyStr(" "));
-        assertFalse(StringUtil.isEmptyStr("a"));
+    public void testIsEmpty() {
+        assertTrue(StringUtil.isEmpty(""));
+        assertTrue(StringUtil.isEmpty(null));
+        assertFalse(StringUtil.isEmpty(" "));
+        assertFalse(StringUtil.isEmpty("a"));
     }
 //
 //    @Test
@@ -92,21 +106,21 @@ public class StringUtilTest {
 //    }
 //
 //    @Test
-//    public void testIsNotEmptyStr() {
-//        System.out.println("isNotEmptyStr");
+//    public void testisNotEmpty() {
+//        System.out.println("isNotEmpty");
 //        String str = "";
 //        boolean expResult = false;
-//        boolean result = StringUtil.isNotEmptyStr(str);
+//        boolean result = StringUtil.isNotEmpty(str);
 //        assertEquals(expResult, result);
 //        fail("The test case is a prototype.");
 //    }
 //
 //    @Test
-//    public void testIsNotBlankStr() {
-//        System.out.println("isNotBlankStr");
+//    public void testisNotBlank() {
+//        System.out.println("isNotBlank");
 //        String str = "";
 //        boolean expResult = false;
-//        boolean result = StringUtil.isNotBlankStr(str);
+//        boolean result = StringUtil.isNotBlank(str);
 //        assertEquals(expResult, result);
 //        fail("The test case is a prototype.");
 //    }

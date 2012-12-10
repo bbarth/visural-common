@@ -26,9 +26,12 @@ import java.util.Set;
 
 /**
  * Uses reflection to get a rough guesstimate of how much memory an Object
- * graph is using. Will not be very accurate, but is useful to get a rough
+ * graph is using. 
+ * 
+ * Will not be completely accurate, but is useful to get a rough
  * idea of runtime memory use for any type of object graph, without the use
  * of instrumentation.
+ * 
  * @author Richard Nichols
  */
 public class ObjectSize {
