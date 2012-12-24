@@ -59,14 +59,6 @@ public @interface Cache {
      * Note that once enabled, all cached values for this method will be soft referenced.
      * @return 
      */
-    boolean softValues() default false;
-    
-    /**
-     * Default is that caches relate only to the local object instance (i.e. use
-     * declaring object's scope). If you want the cached results to apply to all
-     * objects of this class, then declare as a singleton cache = true.
-     * @return
-     */
-    boolean singletonCache() default false;
+    boolean softValues() default false;    
         
 }

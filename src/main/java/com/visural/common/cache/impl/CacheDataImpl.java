@@ -39,7 +39,6 @@ public class CacheDataImpl implements CacheData {
     private Map<String, MethodCache> caches = new HashMap<String, MethodCache>();
     private final KeyProvider keyProvider;
     private final CacheInterceptor interceptor;
-    private boolean singletonCache = false;
 
     @Inject
     public CacheDataImpl(KeyProvider keyProvider, CacheInterceptor interceptor) {
@@ -58,10 +57,6 @@ public class CacheDataImpl implements CacheData {
         } else {
             return null;
         }
-    }
-    
-    public void markAsSingletonCache() {
-        singletonCache = true;
     }
 
     public void put(long created, long timeCost, MethodCall methodCall, Cache annot, Object result) {
@@ -103,24 +98,16 @@ public class CacheDataImpl implements CacheData {
     }
         
     public void invalidateCache(MethodCall methodCall) {
-        if (methodCall.getMethod().getAnnotation(Cache.class).singletonCache() && !singletonCache) {
-            interceptor.singletonCache.invalidateCache(methodCall);
-        } else {
-            MethodCache cache = getMethodCache(methodCall.getMethod());
-            if (cache != null) {
-                cache.invalidateCache(methodCall);
-            }            
-        }
+        MethodCache cache = getMethodCache(methodCall.getMethod());
+        if (cache != null) {
+            cache.invalidateCache(methodCall);
+        }            
     }
 
     public void invalidateCache(Method method) {
-        if (method.getAnnotation(Cache.class).singletonCache() && !singletonCache) {
-            interceptor.singletonCache.invalidateCache(method);
-        } else {
-            MethodCache cache = getMethodCache(method);
-            if (cache != null) {
-                cache.invalidateCache();
-            }
+        MethodCache cache = getMethodCache(method);
+        if (cache != null) {
+            cache.invalidateCache();
         }
     }
     

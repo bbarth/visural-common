@@ -33,7 +33,7 @@ import java.util.StringTokenizer;
  */
 public class StringUtil {
 
-    private static StringConverter ToStringConverter = new StringConverter() {
+    private static StringConverter<Object> ToStringConverter = new StringConverter<Object>() {
         public String toString(Object object) {
             return (object == null ? "null" : object.toString());
         }
@@ -167,7 +167,7 @@ public class StringUtil {
             return true;
         }
         for (int i = 0; i < strLen; i++) {
-            if (Character.isWhitespace(cs.charAt(i)) == false) {
+            if (!Character.isWhitespace(cs.charAt(i))) {
                 return false;
             }
         }

@@ -16,7 +16,7 @@
  */
 package com.visural.common.collection;
 
-import com.visural.common.apacherepack.Validate;
+import com.google.common.base.Preconditions;
 import java.util.Collection;
 import java.util.List;
 
@@ -27,27 +27,27 @@ import java.util.List;
 public class FluentLists {
     
     public static <T> List<T> set(List<T> list, int index, T element) {
-        Validate.notNull(list);
+        Preconditions.checkNotNull(list);
         index = basicAdjustIndex(index, list);
         list.set(index, element);
         return list;
     }
     
     public static <T> List<T> add(List<T> list, int index, T element) {
-        Validate.notNull(list);
+        Preconditions.checkNotNull(list);
         index = basicAdjustIndex(index, list);
         list.add(index, element);
         return list;
     }    
     
     public static <T> T remove(List<T> list, int index) {
-        Validate.notNull(list);
+        Preconditions.checkNotNull(list);
         index = basicAdjustIndex(index, list);
         return list.remove(index);
     }
     
     public static <T> List<T> addAll(List<T> list, int index, Iterable<? extends T> iterable) {
-        Validate.notNull(list);
+        Preconditions.checkNotNull(list);
         index = basicAdjustIndex(index, list);
         for (T element : iterable) {
             list.add(index++, element);
@@ -56,14 +56,14 @@ public class FluentLists {
     }
     
     public static <T> List<T> addAll(List<T> list, int index, Collection<? extends T> collection) {
-        Validate.notNull(list);
+        Preconditions.checkNotNull(list);
         index = basicAdjustIndex(index, list);
         list.addAll(index, collection);
         return list;
     }
 
     public static <T> T get(List<T> list, int index) {
-        Validate.notNull(list);
+        Preconditions.checkNotNull(list);
         index = basicAdjustIndex(index, list);
         return list.get(index);
     }
@@ -83,7 +83,7 @@ public class FluentLists {
      * @return 
      */
     public static <T> List<T> subList(List<T> list, int fromIndex, int toIndex) {
-        Validate.notNull(list);
+        Preconditions.checkNotNull(list);
         fromIndex = basicAdjustIndex(fromIndex, list);
         toIndex = endIndexAdjust(toIndex, fromIndex, list);
         return list.subList(fromIndex, toIndex);

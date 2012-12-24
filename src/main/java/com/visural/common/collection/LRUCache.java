@@ -14,7 +14,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package com.visural.common.datastruct;
+package com.visural.common.collection;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

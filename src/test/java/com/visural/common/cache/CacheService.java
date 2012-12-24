@@ -70,15 +70,6 @@ public class CacheService implements Cacheable {
         return (int)(Math.random()*1000000d);
     }
 
-    @Cache(maxEntries = 5, singletonCache=true)
-    public int longSingletonToCache_5(String argument) {
-        try {
-            Thread.sleep(20);
-        } catch (InterruptedException ex) {
-        }
-        return callCounter++;
-    }
-
     public int getCounter() {
         return callCounter;
     }

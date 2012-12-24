@@ -81,57 +81,6 @@ public class CacheTest extends Assert {
         }
     }
 
-    /**
-     * Singleton test logic hold exactly the same as non-singleton, except we
-     * distribute the method calls across the instances.
-     */
-    @Test
-    public void testBasicSingletonCache() {
-        CacheService[] cs = getCaches(2);
-        int result = cs[0].longSingletonToCache_5("static");
-        for (int n = 0; n < 5; n++) {
-            int loopresult = cs[n % 2].longSingletonToCache_5("static");
-            assertTrue(loopresult == result);
-        }
-    }
-
-    @Test
-    public void testBasicSingletonCache2() {
-        CacheService[] cs = getCaches(2);
-        for (int n = 0; n < 5; n++) {
-            int loopresult = cs[0].longSingletonToCache_5("" + n);
-            assertTrue(loopresult == n);
-        }
-        for (int n = 0; n < 5; n++) {
-            int loopresult = cs[1].longSingletonToCache_5("" + n);
-            assertTrue(loopresult == n);
-        }
-        assertTrue(cs[1].getCounter() == 0);
-    }
-
-    /**
-     * Singleton test logic hold exactly the same as non-singleton, except we
-     * distribute the method calls across the instances.
-     */
-    @Test
-    public void testCacheSingletonMax() {
-        CacheService[] cs = getCaches(2);
-        for (int n = 0; n < 5; n++) {
-            int prev = cs[n % 2].getCounter();
-            cs[n % 2].longSingletonToCache_5("" + n);
-            assertTrue(cs[n % 2].getCounter() == prev + 1);
-        }
-        for (int n = 0; n < 5; n++) {
-            int prev = cs[n % 2].getCounter();
-            cs[n % 2].longSingletonToCache_5("" + n);
-            assertTrue(cs[n % 2].getCounter() <= prev);
-        }
-        assertTrue(0 == cs[0].longSingletonToCache_5("0"));
-        assertTrue(0 == cs[1].longSingletonToCache_5("0"));
-        assertTrue(3 == cs[0].longSingletonToCache_5("not cached"));
-        assertTrue(3 == cs[1].longSingletonToCache_5("not cached"));
-    }
-
     @Test
     public void testInvalidation() {
         CacheService cs = getCache();
@@ -199,16 +148,6 @@ public class CacheTest extends Assert {
         }
         assertTrue(result0 == cs.esLFU(0));
         assertTrue(result1 != cs.esLFU(1));
-    }
-
-    @Test
-    public void testInvalidateSingleton() {
-        CacheService cs = getCache();
-        cs.longSingletonToCache_5("static");
-        cs.__cacheData().invalidateCache(MethodCall.get(cs.getClass(), "longSingletonToCache_5", "static"));
-        int prev = cs.getCounter();
-        cs.longSingletonToCache_5("static");
-        assertTrue(prev + 1 == cs.getCounter());
     }
 
     @Test

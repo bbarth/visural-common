@@ -420,11 +420,11 @@ public class HtmlSanitizer {
         return convertLineFeedToBR(htmlEncodeApexesAndTags(s == null ? "" : s));
     }
 
-    public static final String htmlEncodeApexesAndTags(String source) {
+    public static String htmlEncodeApexesAndTags(String source) {
         return htmlEncodeTag(htmlEncodeApexes(source));
     }
 
-    public static final String htmlEncodeApexes(String source) {
+    public static String htmlEncodeApexes(String source) {
         if (source != null) {
             String result = replaceAllNoRegex(source, new String[]{"\"", "'"}, new String[]{"&quot;", "&#39;"});
             return result;
@@ -433,7 +433,7 @@ public class HtmlSanitizer {
         }
     }
 
-    public static final String htmlEncodeTag(String source) {
+    public static String htmlEncodeTag(String source) {
         if (source != null) {
             String result = replaceAllNoRegex(source, new String[]{"<", ">"}, new String[]{"&lt;", "&gt;"});
             return result;
@@ -459,7 +459,7 @@ public class HtmlSanitizer {
         }
     }
 
-    public static final String replaceAllNoRegex(String source, String searches[], String replaces[]) {
+    public static String replaceAllNoRegex(String source, String searches[], String replaces[]) {
         int k;
         String tmp = source;
         for (k = 0; k < searches.length; k++) {
@@ -468,7 +468,7 @@ public class HtmlSanitizer {
         return tmp;
     }
 
-    public static final String replaceAllNoRegex(String source, String search, String replace) {
+    public static String replaceAllNoRegex(String source, String search, String replace) {
         StringBuffer buffer = new StringBuffer();
         if (source != null) {
             if (search.length() == 0) {

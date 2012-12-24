@@ -49,6 +49,7 @@ public class GuiceUtil {
      * @param clazz
      * @return
      */
+    @SuppressWarnings("unchecked")
     public static String getScopeDesc(Injector i, Class clazz) {
         final Holder h = new Holder();
         i.getBinding(clazz).acceptScopingVisitor(new BindingScopingVisitor() {

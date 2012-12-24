@@ -6,18 +6,18 @@ import java.io.Serializable;
 
 public class CacheSettings implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private int timeToLive;
     private int maxEntries;
     private EvictionStrategy evictionStrategy;   
     private boolean softValues;   
-    private boolean singletonCache;
 
     public CacheSettings(Cache settings) {
         timeToLive = settings.timeToLive();
         maxEntries = settings.maxEntries();
         evictionStrategy = settings.evictionStrategy();
         softValues = settings.softValues();
-        singletonCache = settings.singletonCache();
     }
 
     public EvictionStrategy getEvictionStrategy() {
@@ -30,10 +30,6 @@ public class CacheSettings implements Serializable {
 
     public int getTimeToLive() {
         return timeToLive;
-    }
-
-    public boolean isSingletonCache() {
-        return singletonCache;
     }
 
     public boolean isSoftValues() {

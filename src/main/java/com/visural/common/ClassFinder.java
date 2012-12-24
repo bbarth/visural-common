@@ -346,7 +346,7 @@ public class ClassFinder {
      */
     protected void addIfMatches(Set<String> classes, String className) {
         if ((className.startsWith(packageName)) && (className.endsWith(".class"))) {
-            boolean add = recursive ? true : className.substring(packageName.length() + 1).indexOf("/") < 0;
+            boolean add = recursive || className.substring(packageName.length() + 1).indexOf("/") < 0;
             if (add) {
                 classes.add(className.substring(0, className.length() - 6).replace('/', '.'));
             }

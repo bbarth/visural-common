@@ -21,7 +21,7 @@ import com.visural.common.cache.Cache;
 import com.visural.common.cache.EvictionStrategy;
 import com.visural.common.cache.KeyProvider;
 import com.visural.common.cache.MethodCall;
-import com.visural.common.datastruct.LRUCache;
+import com.visural.common.collection.LRUCache;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.util.Comparator;

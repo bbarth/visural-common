@@ -46,7 +46,6 @@ public class CacheInterceptor implements MethodInterceptor {
     private static final Logger logger = Logger.getLogger(CacheInterceptor.class.getName());
     
     @Inject KeyProvider keyProvider;
-    @Inject CacheDataImpl singletonCache;
     
     private Set<EqualsWeakReference<Cacheable>> instances = null;
 
@@ -54,9 +53,7 @@ public class CacheInterceptor implements MethodInterceptor {
     }
     
     public Object invoke(MethodInvocation mi) throws Throwable {        
-        singletonCache.markAsSingletonCache(); // TODO: only needed to be called once, but no suitable place to put it.
-        
-        Cache annot = (Cache) mi.getMethod().getAnnotation(Cache.class);
+        Cache annot = mi.getMethod().getAnnotation(Cache.class);
         Cacheable cacheable = (Cacheable) mi.getThis();
         if (instances != null) {
             synchronized (this) {
@@ -64,8 +61,7 @@ public class CacheInterceptor implements MethodInterceptor {
             }
         }
 
-        CacheDataImpl cacheData = annot.singletonCache() ? 
-                singletonCache : (CacheDataImpl) cacheable.__cacheData();
+        CacheDataImpl cacheData = (CacheDataImpl) cacheable.__cacheData();
         
         MethodCall call = MethodCall.fromInvocation(mi);
         CacheEntry ce = cacheData.get(call);
@@ -144,9 +140,6 @@ public class CacheInterceptor implements MethodInterceptor {
 
                 }
             }
-            if (!singletonCache.isEmpty()) {
-                result.put("_SingletonCaches", singletonCache.getStatistics(estimateMemory));
-            }            
         }
         return result;
     }
