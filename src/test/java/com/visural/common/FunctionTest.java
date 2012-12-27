@@ -44,7 +44,7 @@ public class FunctionTest {
     
     @Test
     public void testArrayify() {
-        String[] result = Function.arrayify(String.class, "test", 5);
+        String[] result = Function.fillArray(new String[5], "test");
         assertTrue(result.length == 5);
         for (String r : result) {
             assertTrue(r.equals("test"));

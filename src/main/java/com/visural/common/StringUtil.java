@@ -536,18 +536,24 @@ public class StringUtil {
         return d[s1.length()][s2.length()];
     }
 
+    // TOOD: JDK 7 only
+    //@SafeVarargs
     public static <T> String delimitObjectsToString(String delim, T... objects) {
         return delimitObjectsToString(delim, delim, objects);
     }
 
+    //@SafeVarargs
     public static <T> String delimitObjectsToString(String delim, String lastDelim, T... objects) {
         return delimitObjectsToString(delim, lastDelim, false, objects);
     }
 
+    //@SafeVarargs
     public static <T> String delimitObjectsToString(String delim, String lastDelim, boolean skipNulls, T... objects) {
         return delimitObjectsToString(delim, lastDelim, skipNulls, ToStringConverter, objects);
     }
 
+    //@SafeVarargs
+    @SuppressWarnings("unchecked")
     public static <T> String delimitObjectsToString(String delim, String lastDelim, boolean skipNulls, StringConverter<T> conv, T... objects) {
         if (objects == null || objects.length == 0) {
             return null;

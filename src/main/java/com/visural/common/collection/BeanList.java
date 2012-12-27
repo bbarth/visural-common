@@ -16,28 +16,33 @@
  */
 package com.visural.common.collection;
 
+import com.google.common.collect.ForwardingList;
 import com.visural.common.BeanUtil;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 /**
- * Wrapper for a List of JavaBeans, which allows sorting on different properties.
- * @author Visural
+ * Wrapper for a List of JavaBeans, which allows sorting on different
+ * properties.
+ *
+ * @author Richard Nichols
  */
-public class BeanList<T> implements List<T>, Serializable {
+@SuppressWarnings({"rawtypes", "unchecked"})
+public class BeanList<T> extends ForwardingList<T> implements Serializable {
 
-    private static final String[] StringArray = new String[]{};
-
+    private static final long serialVersionUID = 1L;
+    
     private final List<T> list;
+    private final Map<Class, Comparator> typeComparators = new HashMap<Class, Comparator>();
+    private final Map<String, Comparator> propertyComparators = new HashMap<String, Comparator>();
+    
     private int numberOfSorts = 1;
     private List<String> sortProperties = new ArrayList<String>();
     private Nulls nullHandling = Nulls.HandledByComparators;
@@ -62,16 +67,16 @@ public class BeanList<T> implements List<T>, Serializable {
         sortByProperties(initialSort);
     }
 
-    public void sortByProperties(String... properties) {
-        for (int n = properties.length-1; n >= 0; n--) {
+    public final void sortByProperties(String... properties) {
+        for (int n = properties.length - 1; n >= 0; n--) {
             popIfRequiredThenAdd(properties[n]);
         }
-        sort(properties);
+        sort(Arrays.asList(properties));
     }
 
     public BeanList<T> resortByProperty(String property) {
         popIfRequiredThenAdd(property);
-        sort(sortProperties.toArray(StringArray));
+        sort(sortProperties);
         return this;
     }
 
@@ -81,28 +86,27 @@ public class BeanList<T> implements List<T>, Serializable {
             if (sortProperties.contains(propAdj)) {
                 // remove old sort on this property
                 sortProperties.remove(propAdj);
-            } else if (sortProperties.contains("-"+propAdj)) {
-                sortProperties.remove("-"+propAdj);
+            } else if (sortProperties.contains("-" + propAdj)) {
+                sortProperties.remove("-" + propAdj);
             } else {
                 // sort pops oldest sort from end
-                sortProperties.remove(sortProperties.size()-1);
+                sortProperties.remove(sortProperties.size() - 1);
             }
         }
         sortProperties.add(0, property);
     }
 
     public BeanList<T> resort() {
-        sort(sortProperties.toArray(StringArray));
+        sort(sortProperties);
         return this;
     }
 
-    private BeanList<T> sort(final String... properties) {
+    private BeanList<T> sort(final Iterable<String> properties) {
         Collections.sort(list, new Comparator<T>() {
             public int compare(T o1, T o2) {
                 try {
-                    for (int n = 0; n < properties.length; n++) {
+                    for (String property : properties) {
                         boolean ascending = true;
-                        String property = properties[n];
                         if (property.startsWith("-")) {
                             ascending = false;
                             property = property.substring(1);
@@ -124,7 +128,7 @@ public class BeanList<T> implements List<T>, Serializable {
                         switch (nullHandling) {
                             case AreLess:
                                 if (val1 == null && val2 == null) {
-                                   continue;
+                                    continue;
                                 } else if (val1 == null && val2 != null) {
                                     return ascending ? -1 : 1;
                                 } else if (val1 != null && val2 == null) {
@@ -133,8 +137,8 @@ public class BeanList<T> implements List<T>, Serializable {
                                 break;
                             case AreMore:
                                 if (val1 == null && val2 == null) {
-                                   continue;
-                                } else if(val1 == null && val2 != null)  {
+                                    continue;
+                                } else if (val1 == null && val2 != null) {
                                     return ascending ? 1 : -1;
                                 } else if (val1 != null && val2 == null) {
                                     return ascending ? -1 : 1;
@@ -142,20 +146,7 @@ public class BeanList<T> implements List<T>, Serializable {
                                 break;
                         }
 
-                        Comparator comparator = getComparator(property, type);
-                        if (comparator != null) {
-                            result = comparator.compare(val1, val2);                           
-                        } else if (Comparable.class.isAssignableFrom(type)) {
-                            if (val1 != null) {
-                                result = ((Comparable)val1).compareTo(val2);
-                            } else if (val2 != null) {
-                                result = ((Comparable)val2).compareTo(val1);
-                            } else {
-                                result = 0;
-                            }
-                        } else {
-                            throw new IllegalStateException("Don't know how to compare type '"+type.getName()+"'");
-                        }
+                        result = propertyCompare(property, type, result, val1, val2);
 
                         if (result < 0 || result > 0) {
                             return ascending ? result : -result;
@@ -169,6 +160,23 @@ public class BeanList<T> implements List<T>, Serializable {
                 }
             }
 
+            private int propertyCompare(String property, Class type, int result, Object val1, Object val2) throws IllegalStateException {
+                Comparator comparator = getComparator(property, type);
+                if (comparator != null) {
+                    result = comparator.compare(val1, val2);
+                } else if (Comparable.class.isAssignableFrom(type)) {
+                    if (val1 != null) {
+                        result = ((Comparable) val1).compareTo(val2);
+                    } else if (val2 != null) {
+                        result = ((Comparable) val2).compareTo(val1);
+                    } else {
+                        result = 0;
+                    }
+                } else {
+                    throw new IllegalStateException("Don't know how to compare type '" + type.getName() + "'");
+                }
+                return result;
+            }
         });
         return this;
     }
@@ -181,14 +189,10 @@ public class BeanList<T> implements List<T>, Serializable {
         return c;
     }
 
-    private final Map<Class, Comparator> typeComparators = new HashMap<Class, Comparator>();
-
     public BeanList<T> registerTypeComparator(Class type, Comparator comparator) {
         typeComparators.put(type, comparator);
         return this;
     }
-
-    private final Map<String, Comparator> propertyComparators = new HashMap<String, Comparator>();
 
     public BeanList<T> registerPropertyComparator(String property, Comparator comparator) {
         propertyComparators.put(property, comparator);
@@ -202,13 +206,14 @@ public class BeanList<T> implements List<T>, Serializable {
     public void setNumberOfSorts(int numberOfSorts) {
         this.numberOfSorts = numberOfSorts;
         while (numberOfSorts < sortProperties.size()) {
-            sortProperties.remove(sortProperties.size()-1);
+            sortProperties.remove(sortProperties.size() - 1);
         }
     }
 
     /**
      * Returns an unmodifiable list of the current sort properties.
-     * @return 
+     *
+     * @return
      */
     public List<String> getSortProperties() {
         return Collections.unmodifiableList(sortProperties);
@@ -218,110 +223,22 @@ public class BeanList<T> implements List<T>, Serializable {
         return nullHandling;
     }
 
-    public void setNullHandling(Nulls nullHandling) {
+    public final void setNullHandling(Nulls nullHandling) {
         this.nullHandling = nullHandling;
-    }
-
-    /* wrapped list methods follow */
-
-    public int size() {
-        return list.size();
-    }
-
-    public boolean isEmpty() {
-        return list.isEmpty();
-    }
-
-    public boolean contains(Object o) {
-        return list.contains(o);
-    }
-
-    public Iterator<T> iterator() {
-        return list.iterator();
-    }
-
-    public Object[] toArray() {
-        return list.toArray();
-    }
-
-    public <T> T[] toArray(T[] a) {
-        return list.toArray(a);
-    }
-
-    public boolean add(T e) {
-        return list.add(e);
-    }
-
-    public boolean remove(Object o) {
-        return list.remove(o);
-    }
-
-    public boolean containsAll(Collection<?> c) {
-        return list.containsAll(c);
-    }
-
-    public boolean addAll(Collection<? extends T> c) {
-        return list.addAll(c);
-    }
-
-    public boolean addAll(int index, Collection<? extends T> c) {
-        return list.addAll(index, c);
-    }
-
-    public boolean removeAll(Collection<?> c) {
-        return list.removeAll(c);
-    }
-
-    public boolean retainAll(Collection<?> c) {
-        return list.retainAll(c);
-    }
-
-    public void clear() {
-        list.clear();
-    }
-
-    public T get(int index) {
-        return list.get(index);
-    }
-
-    public T set(int index, T element) {
-        return list.set(index, element);
-    }
-
-    public void add(int index, T element) {
-        list.add(index, element);
-    }
-
-    public T remove(int index) {
-        return list.remove(index);
-    }
-
-    public int indexOf(Object o) {
-        return list.indexOf(o);
-    }
-
-    public int lastIndexOf(Object o) {
-        return list.lastIndexOf(o);
-    }
-
-    public ListIterator<T> listIterator() {
-        return list.listIterator();
-    }
-
-    public ListIterator<T> listIterator(int index) {
-        return list.listIterator();
-    }
-
-    public List<T> subList(int fromIndex, int toIndex) {
-        return list.subList(fromIndex, toIndex);
     }
 
     @Override
     public String toString() {
-        return "Sort"+sortProperties+"-"+list.toString();
+        return "Sort" + sortProperties + "-" + list.toString();
+    }
+
+    @Override
+    protected List<T> delegate() {
+        return list;
     }
 
     public enum Nulls {
+
         AreLess,
         AreMore,
         HandledByComparators

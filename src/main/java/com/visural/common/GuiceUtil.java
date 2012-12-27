@@ -30,16 +30,28 @@ public class GuiceUtil {
     /**
      * Finds the actual concrete class for a proxied runtime Guice'd class.
      * @param clazz
+     * @return
+     */
+    public static <T> Class<? super T> unproxyClass(T instance) {
+        @SuppressWarnings("unchecked")
+        Class<T> instanceClass = (Class<T>) instance.getClass();
+        return unproxyClass(instanceClass);
+    }
+
+    /**
+     * Finds the actual concrete class for a proxied runtime Guice'd class.
+     * @param clazz
      * @return 
      */
-    public static Class unproxyClass(Class clazz) {
-        if (clazz == null) {
+    public static <T> Class<? super T> unproxyClass(Class<T> clazz) {
+        Class<? super T> result = clazz;
+        if (result == null) {
             return null;
+        }        
+        if (result.getName().contains("$$EnhancerByGuice")) {
+            result = result.getSuperclass();
         }
-        if (clazz.getName().contains("$$EnhancerByGuice")) {
-            clazz = clazz.getSuperclass();
-        }
-        return clazz;
+        return result;
     }
 
     /**
