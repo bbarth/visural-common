@@ -5,6 +5,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.visural.common.events.EventBusDeadEventListener;
 import com.visural.common.events.SubscribingComponent;
+import org.apache.log4j.BasicConfigurator;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -28,6 +29,7 @@ public class AsyncEventBusModuleTest {
 
     @Before
     public void setup() {
+        BasicConfigurator.configure();
         MockitoAnnotations.initMocks(this);
         i = Guice.createInjector(new AsyncEventBusModule());
         eventBus = i.getInstance(EventBus.class);

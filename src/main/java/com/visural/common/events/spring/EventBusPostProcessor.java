@@ -6,14 +6,17 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.framework.Advised;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 
+/**
+ * EventBusPostProcessor registers Spring beans with Guava EventBus.
+ */
 public class EventBusPostProcessor implements BeanPostProcessor {
 
-    private static final Logger log = LoggerFactory.getLogger(EventBusPostProcessor.class);
-
+    private static final Logger LOG = LoggerFactory.getLogger(EventBusPostProcessor.class);
     @Autowired
     private EventBus eventBus;
 
@@ -24,27 +27,42 @@ public class EventBusPostProcessor implements BeanPostProcessor {
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        Method[] methods = bean.getClass().getMethods();
-        if (isSubscriber(methods, bean, beanName)) {
-            registerSubscriber(bean, beanName);
+        initSubscribed(bean, beanName);
+
+        // Spring's AOP proxying is configured to proxy interface not implementation methods.
+        // thus @Subscribing on an implementation bean is ignored in initial bean check since 
+        // the proxy bean only has interface methods!
+        if (bean instanceof Advised) {
+            try {
+                Advised advised = (Advised) bean;
+                Object target = advised.getTargetSource().getTarget();
+                initSubscribed(target, beanName + "#[aop-target]");
+            } catch (Exception ex) {
+                LOG.warn("Error while trying to subscribe AOP proxy target.", ex);
+            }
         }
+
         return bean;
     }
 
-    private void registerSubscriber(Object bean, String beanName) {
-        eventBus.register(bean);
-        log.trace("Bean {} subscribed to event bus", beanName);
-    }
-
-    private boolean isSubscriber(Method[] methods, Object bean, String beanName) {
+    private void initSubscribed(Object bean, String beanName) throws SecurityException {
+        boolean registered = false;
+        Method[] methods = bean.getClass().getMethods();
         for (Method method : methods) {
             Annotation[] annotations = method.getAnnotations();
             for (Annotation annotation : annotations) {
                 if (annotation.annotationType().equals(Subscribe.class)) {
-                    return true;
+                    if (!registered) {
+                        eventBus.register(bean);
+                        registered = true;
+                    }
+                    LOG.info("Method {}.{}() was subscribed for type {}",
+                            new Object[]{
+                        beanName, method.getName(),
+                        method.getParameterTypes()[0].getName()
+                    });
                 }
             }
         }
-        return false;
     }
 }

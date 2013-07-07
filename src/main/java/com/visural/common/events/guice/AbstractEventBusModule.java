@@ -15,8 +15,12 @@ import com.visural.common.events.EventBusDeadEventListener;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import javax.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractEventBusModule extends AbstractModule {
+    
+    private static final Logger log = LoggerFactory.getLogger(AbstractEventBusModule.class);
 
     @Override
     protected void configure() {
@@ -26,6 +30,7 @@ public abstract class AbstractEventBusModule extends AbstractModule {
             public <I> void hear(TypeLiteral<I> type, TypeEncounter<I> encounter) {
                 encounter.register(new InjectionListener<I>() {
                     public void afterInjection(I injectee) {
+                        log.info("{} registered with event bus.", injectee.getClass().getName());
                         getEventBus().register(injectee);
                     }
                 });

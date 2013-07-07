@@ -149,8 +149,10 @@ public class Function {
      * @param <T>
      * @param mainValue
      * @param fallbackValues
+     * @deprecated see {@link CollectionUtil#firstNonNull(T[]) }
      * @return
      */
+    @Deprecated
     public static <T> T nvl(T... values) {
         if (values.length == 0) {
             return null;
