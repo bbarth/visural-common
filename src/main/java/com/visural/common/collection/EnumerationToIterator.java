@@ -14,7 +14,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package com.visural.common;
+package com.visural.common.collection;
 
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -23,7 +23,8 @@ import java.util.Iterator;
  * @version $Id$
  * @author Richard Nichols
  */
-public class EnumerationToIterator<T> implements Iterator {
+public class EnumerationToIterator<T> implements Iterator<T> {
+
     private final Enumeration<T> enumeration;
 
     public EnumerationToIterator(Enumeration<T> enumeration) {

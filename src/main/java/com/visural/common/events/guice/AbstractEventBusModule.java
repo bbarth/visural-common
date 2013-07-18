@@ -30,7 +30,7 @@ public abstract class AbstractEventBusModule extends AbstractModule {
             public <I> void hear(TypeLiteral<I> type, TypeEncounter<I> encounter) {
                 encounter.register(new InjectionListener<I>() {
                     public void afterInjection(I injectee) {
-                        log.info("{} registered with event bus.", injectee.getClass().getName());
+                        log.debug("{} registered with event bus.", injectee.getClass().getName());
                         getEventBus().register(injectee);
                     }
                 });

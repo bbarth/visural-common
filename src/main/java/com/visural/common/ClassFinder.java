@@ -15,6 +15,7 @@
  */
 package com.visural.common;
 
+import com.visural.common.collection.EnumerationToIterator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
