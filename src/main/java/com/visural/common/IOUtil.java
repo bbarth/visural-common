@@ -282,7 +282,7 @@ public class IOUtil {
             IOUtil.silentClose(IOUtil.class, os);
         }
     }
-
+        
     public static void silentClose(Class myClass, InputStream is) {
         try {
             if (is != null) {
@@ -292,7 +292,7 @@ public class IOUtil {
             log.error("Could not close InputStream in silentClose(...)", se);
         }
     }
-
+    
     public static void silentClose(Class myClass, OutputStream os) {
         try {
             if (os != null) {
