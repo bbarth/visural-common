@@ -16,7 +16,6 @@
  */
 package com.visural.common;
 
-import static com.visural.common.Function.minInt;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
@@ -24,6 +23,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Collection;
 import java.util.StringTokenizer;
+
+import static com.visural.common.Function.minInt;
 
 /**
  * String handling utiltities
@@ -48,6 +49,20 @@ public class StringUtil {
      */
     public static boolean validFilename(String filename) {
         return !containsAnyChar(filename, FILENAME_INVALID_CHARS);
+    }
+
+    /**
+     * Courtesy of http://stackoverflow.com/questions/3263892/format-file-size-as-mb-gb-etc
+     * @param size
+     * @return
+     */
+    public static String readableFileSize(long size) {
+        if (size <= 0) {
+            return "0";
+        }
+        final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
+        int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
+        return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
 
     /**
